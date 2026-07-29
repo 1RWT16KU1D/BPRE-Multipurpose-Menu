@@ -73,6 +73,10 @@ enum MenuWindows
 	WINDOW_TITLE,
     WINDOW_ITEMS,
     WINDOW_DESCRIPTION,
+
+    #ifdef BONUS_MENU
+    WINDOW_NEXT_PREVIOUS_PAGE_TEXT,
+    #endif
 	WINDOW_COUNT,
 };
 
@@ -134,6 +138,10 @@ const u8 *const MenuItemDescriptions[] =
 #ifdef BONUS_MENU
 // Bonus Menu Title
 extern const u8 gText_MenuBonusTitle[];
+
+// Next/Previous Page Text
+extern const u8 gText_MenuBonusNextPageR[];
+extern const u8 gText_MenuBonusPreviousPageL[];
 
 // Bonus Menu Items
 extern const u8 gText_MenuBonusItem_1[];

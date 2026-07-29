@@ -69,6 +69,12 @@ Description of Menu Item 10
 #org @gText_MenuBonusTitle
 Bonus Page
 
+#org @gText_MenuBonusNextPageR
+Next Page\n[R_BUTTON]
+
+#org @gText_MenuBonusPreviousPageL
+Previous\nPage [L_BUTTON]
+
 // Bonus Menu Items
 #org @gText_MenuBonusItem_1
 Bonus Item 1

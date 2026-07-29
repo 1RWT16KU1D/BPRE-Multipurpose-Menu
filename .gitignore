@@ -2,6 +2,7 @@
 *.gba
 *.png
 build/*
+graphics/**/*.h
 *.sgm
 *.dmp
 *.bak

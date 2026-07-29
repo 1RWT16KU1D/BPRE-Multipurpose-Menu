@@ -120,6 +120,19 @@ static const struct WindowTemplate unusedArg sMenuWindowTemplates[WINDOW_COUNT +
         .paletteNum = 14,
         .baseBlock = 285,
     },
+
+    #ifdef BONUS_MENU
+    [WINDOW_NEXT_PREVIOUS_PAGE_TEXT] =
+    {
+        .bg = BG_TEXT,
+        .tilemapLeft = 23,
+        .tilemapTop = 8,
+        .width = 7,
+        .height = 4,
+        .paletteNum = 14,
+        .baseBlock = 405,
+    },
+    #endif
 	//Base block 500 is used for frame tiles
 	DUMMY_WIN_TEMPLATE
 };
@@ -151,6 +164,9 @@ static void Task_ImageFadeOut(u8 taskId);
 static void PrintMenuTitle(void);
 static void PrintMenuItems(void);
 static void PrintMenuItemDescription(void);
+#ifdef BONUS_MENU
+static void PrintNextPreviousPageText(void);
+#endif
 static void PrintMenuGUI(void);
 
 static void CleanWindow(u8 windowId)
@@ -299,84 +315,62 @@ static void Task_ImageFadeIn(u8 taskId)
 
 static void UpdateMenuSelection(bool8 movingDown)
 {
-    // Borders
-    if (movingDown)
-    {
-        #ifdef BONUS_MENU
-        if (gMenuStruct->isBonusPage)
-        {
-            if (gMenuStruct->bonusCursorPos == VISIBLE_ITEMS - 1) // Bottom of the list
-            {
-                if (gMenuStruct->bonusSelectedItem == BONUS_MENU_COUNT - 1) // End of the item list
-                    return;
-
-                PlaySE(SE_SELECT);
-                gMenuStruct->bonusFirstVisibleItem++;
-            }
-            else
-            {
-                PlaySE(SE_SELECT);
-                gMenuStruct->bonusCursorPos++;
-            }
-        }
-        else
-        #endif
-        if (gMenuStruct->cursorPos == VISIBLE_ITEMS - 1) // Bottom of the list
-        {
-            if (gMenuStruct->selectedItem == MENU_ITEM_COUNT - 1) // End of the item list
-                return;
-
-            PlaySE(SE_SELECT);
-            gMenuStruct->firstVisibleItem++;
-        }
-        else
-        {
-            PlaySE(SE_SELECT);
-            gMenuStruct->cursorPos++;
-        }
-    }
-    else
-    {
-        #ifdef BONUS_MENU
-        if (gMenuStruct->isBonusPage)
-        {
-            if (gMenuStruct->bonusCursorPos == 0) // Top of the list
-            {
-                if (gMenuStruct->bonusSelectedItem == 0) // Beginning of the item list
-                    return;
-                
-                PlaySE(SE_SELECT);
-                gMenuStruct->bonusFirstVisibleItem--;
-            }
-            else
-            {
-                PlaySE(SE_SELECT);
-                gMenuStruct->bonusCursorPos--;
-            }
-        }
-        else
-        #endif
-        if (gMenuStruct->cursorPos == 0) // Top of the list
-        {
-            if (gMenuStruct->selectedItem == 0) // Beginning of the item list
-                return;
-            
-            PlaySE(SE_SELECT);
-            gMenuStruct->firstVisibleItem--;
-        }
-        else
-        {
-            PlaySE(SE_SELECT);
-            gMenuStruct->cursorPos--;
-        }
-    }
+    u8 *cursorPos;
+    u8 *firstVisibleItem;
+    u8 *selectedItem;
+    u8 itemCount;
 
     #ifdef BONUS_MENU
     if (gMenuStruct->isBonusPage)
-        gMenuStruct->selectedItem = gMenuStruct->bonusFirstVisibleItem + gMenuStruct->bonusCursorPos;
+    {
+        cursorPos = &gMenuStruct->bonusCursorPos;
+        firstVisibleItem = &gMenuStruct->bonusFirstVisibleItem;
+        selectedItem = &gMenuStruct->bonusSelectedItem;
+        itemCount = BONUS_MENU_COUNT;
+    }
     else
     #endif
-        gMenuStruct->selectedItem = gMenuStruct->firstVisibleItem + gMenuStruct->cursorPos;
+    {
+        cursorPos = &gMenuStruct->cursorPos;
+        firstVisibleItem = &gMenuStruct->firstVisibleItem;
+        selectedItem = &gMenuStruct->selectedItem;
+        itemCount = MENU_ITEM_COUNT;
+    }
+
+    if (movingDown)
+    {
+        if (*cursorPos == VISIBLE_ITEMS - 1)
+        {
+            if (*selectedItem == itemCount - 1)
+                return;
+
+            PlaySE(SE_SELECT);
+            (*firstVisibleItem)++;
+        }
+        else
+        {
+            PlaySE(SE_SELECT);
+            (*cursorPos)++;
+        }
+    }
+    else
+    {
+        if (*cursorPos == 0)
+        {
+            if (*selectedItem == 0)
+                return;
+
+            PlaySE(SE_SELECT);
+            (*firstVisibleItem)--;
+        }
+        else
+        {
+            PlaySE(SE_SELECT);
+            (*cursorPos)--;
+        }
+    }
+
+    *selectedItem = *firstVisibleItem + *cursorPos;
     PrintMenuItems();
     PrintMenuItemDescription();
 }
@@ -399,12 +393,15 @@ static void Task_ImageWaitForKeyPress(u8 taskId)
     #ifdef BONUS_MENU
     else if (gMain.newKeys & (L_BUTTON | R_BUTTON))
     {
-        gMenuStruct->isBonusPage = (gMain.newKeys & R_BUTTON) ? TRUE : FALSE;
-        PlaySE(SE_WIN_OPEN);
-
-        LoadMenuBG();
-        CopyBgTilemapBufferToVram(BG_BACKGROUND);
-        PrintMenuGUI();
+        bool8 nextIsBonusPage = (gMain.newKeys & R_BUTTON) ? TRUE : FALSE;
+        if (gMenuStruct->isBonusPage != nextIsBonusPage)
+        {
+            gMenuStruct->isBonusPage = nextIsBonusPage;
+            PlaySE(SE_WIN_OPEN);
+            LoadMenuBG();
+            CopyBgTilemapBufferToVram(BG_BACKGROUND);
+            PrintMenuGUI();
+        }
     }
     #endif
 }
@@ -443,22 +440,41 @@ static void PrintMenuTitle(void)
 // Print menu items to the screen
 static void PrintMenuItems(void)
 {
-    CleanWindow(WINDOW_ITEMS);
-
     const u8 *const *items = MenuItems;
+    u8 firstVisibleItem;
+    u8 cursorPos;
+    u8 selectedItem;
+    u8 itemCount;
 
     #ifdef BONUS_MENU
-        if (gMenuStruct->isBonusPage)
-            items = MenuBonusItems;
+    if (gMenuStruct->isBonusPage)
+    {
+        items = MenuBonusItems;
+        firstVisibleItem = gMenuStruct->bonusFirstVisibleItem;
+        cursorPos = gMenuStruct->bonusCursorPos;
+        selectedItem = gMenuStruct->bonusSelectedItem;
+        itemCount = BONUS_MENU_COUNT;
+    }
+    else
     #endif
+    {
+        firstVisibleItem = gMenuStruct->firstVisibleItem;
+        cursorPos = gMenuStruct->cursorPos;
+        selectedItem = gMenuStruct->selectedItem;
+        itemCount = MENU_ITEM_COUNT;
+    }
+
+    CleanWindow(WINDOW_ITEMS);
 
     u8 itemText[24];
 
     for (u8 i = 0; i < VISIBLE_ITEMS; ++i)
     {
-        u8 item = gMenuStruct->firstVisibleItem + i;
+        u8 item = firstVisibleItem + i;
+        if (item >= itemCount)
+            break;
 
-        if (i == gMenuStruct->cursorPos)
+        if (i == cursorPos && item == selectedItem)
         {
             StringCopy(itemText, (const u8[]){CHAR_ARROW_RIGHT, EOS});
             StringAppend(itemText, items[item]);
@@ -477,16 +493,37 @@ static void PrintMenuItems(void)
 // Print the description of the selected menu item to the screen
 static void PrintMenuItemDescription(void)
 {
+    u8 selectedItem;
+
     CleanWindow(WINDOW_DESCRIPTION);
 
     #ifdef BONUS_MENU
     if (gMenuStruct->isBonusPage)
-        WindowPrint(WINDOW_DESCRIPTION, FONT_SIZE, 0, 0, &sWhiteText, 0, MenuBonusItemDescriptions[gMenuStruct->selectedItem]);
+    {
+        selectedItem = gMenuStruct->bonusSelectedItem;
+        WindowPrint(WINDOW_DESCRIPTION, FONT_SIZE, 0, 0, &sWhiteText, 0, MenuBonusItemDescriptions[selectedItem]);
+    }
     else
     #endif
-        WindowPrint(WINDOW_DESCRIPTION, FONT_SIZE, 0, 0, &sWhiteText, 0, MenuItemDescriptions[gMenuStruct->selectedItem]);
+    {
+        selectedItem = gMenuStruct->selectedItem;
+        WindowPrint(WINDOW_DESCRIPTION, FONT_SIZE, 0, 0, &sWhiteText, 0, MenuItemDescriptions[selectedItem]);
+    }
     CommitWindow(WINDOW_DESCRIPTION);
 }
+
+// Print the next/previous page text to the screen
+#ifdef BONUS_MENU
+static void PrintNextPreviousPageText(void)
+{
+    CleanWindow(WINDOW_NEXT_PREVIOUS_PAGE_TEXT);
+    if (gMenuStruct->isBonusPage)
+        WindowPrint(WINDOW_NEXT_PREVIOUS_PAGE_TEXT, FONT_SIZE - 1, 0, 0, &sBlackText, 0, gText_MenuBonusPreviousPageL);
+    else
+        WindowPrint(WINDOW_NEXT_PREVIOUS_PAGE_TEXT, FONT_SIZE - 1, 0, 0, &sBlackText, 0, gText_MenuBonusNextPageR);
+    CommitWindow(WINDOW_NEXT_PREVIOUS_PAGE_TEXT);
+}
+#endif
 
 // Print the menu GUI text to the screen
 static void PrintMenuGUI(void)
@@ -497,6 +534,10 @@ static void PrintMenuGUI(void)
     PrintMenuTitle();
     PrintMenuItems();
     PrintMenuItemDescription();
+
+    #ifdef BONUS_MENU
+    PrintNextPreviousPageText();
+    #endif
 }
 
 void ShowImage(void)
