@@ -10,6 +10,7 @@ struct MenuStruct
     u8 selectedItem;
     u8 scrollOffset;
     u8 visibleStart;
+    u8 visibleSelection;
 };
 
 #define VISIBLE_ITEMS 7
