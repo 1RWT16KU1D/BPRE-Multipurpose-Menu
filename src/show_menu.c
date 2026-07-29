@@ -29,9 +29,9 @@
 
 struct ImageData
 {
-    u8 *tiles;
-    u8 *tilemap; 
-    u16 *pal;
+    const u8 *tiles;
+    const u8 *tilemap;
+    const u16 *pal;
 };
 
 const struct ImageData MenuBGData =
@@ -76,9 +76,9 @@ static const struct BgTemplate sMenuBGTemplates[] =
 	[BG_BACKGROUND] =
 	{
 		.bg = BG_BACKGROUND,
-		.charBaseIndex = 3,
-		.mapBaseIndex = 28,
-		.screenSize = 0,
+		.charBaseIndex = 0,
+		.mapBaseIndex = 31,
+		.screenSize = 2,
 		.paletteMode = 0,
 		.priority = 3,
 		.baseTile = 0,
@@ -138,7 +138,7 @@ static void LoadFullscreenImage(void)
     CpuFastFill16(0, tilemapbuffer, BG_MAP_BYTES);
 
     // Tiles
-    DecompressAndCopyTileDataToVram(0, img->tiles, 0, 0, 0);
+    DecompressAndCopyTileDataToVram(BG_BACKGROUND, img->tiles, 0, 0, 0);
 
     // Map
     LZDecompressWram(img->tilemap, tilemapbuffer);

@@ -4,9 +4,9 @@
 #include "../global.h"
 #include "../window.h"
 
-extern u8 Menu_BGTiles[]; 
-extern u8 Menu_BGMap[];
-extern u16 Menu_BGPal[];
+extern const u8 Menu_BGTiles[];
+extern const u8 Menu_BGMap[];
+extern const u16 Menu_BGPal[];
 
 #define DUMMY_WIN_TEMPLATE          \
 {                                   \
