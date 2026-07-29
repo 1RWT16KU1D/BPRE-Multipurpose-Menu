@@ -102,7 +102,7 @@ static const struct WindowTemplate unusedArg sMenuWindowTemplates[WINDOW_COUNT +
 	[WINDOW_ITEMS] =
 	{
 		.bg = BG_TEXT,
-		.tilemapLeft = 1,
+		.tilemapLeft = 0,
 		.tilemapTop = 1,
 		.width = 19,
 		.height = 14,
@@ -372,7 +372,7 @@ static void PrintMenuItems(void)
         {
             StringCopy(itemText, (const u8[]){CHAR_ARROW_RIGHT, EOS});
             StringAppend(itemText, MenuItems[item]);
-            WindowPrint(WINDOW_ITEMS, FONT_SIZE, 0, i * 16, &sBlackText, 0, itemText);
+            WindowPrint(WINDOW_ITEMS, FONT_SIZE, 0, i * 16, &sWhiteText, 0, itemText);
         }
         else
         {
