@@ -13,6 +13,7 @@ struct MenuStruct
 
 #define VISIBLE_ITEMS 7
 #define MENU_ITEM_COUNT (u8)NELEMS(MenuItems)
+#define FONT_SIZE 1
 
 extern const u8 Menu_BGTiles[];
 extern const u16 Menu_BGMap[];
@@ -74,6 +75,7 @@ enum MenuWindows
 {
 	WINDOW_TITLE,
     WINDOW_ITEMS,
+    WINDOW_DESCRIPTION,
 	WINDOW_COUNT,
 };
 
@@ -90,6 +92,17 @@ extern const u8 gText_MenuItem_8[];
 extern const u8 gText_MenuItem_9[];
 extern const u8 gText_MenuItem_10[];
 
+extern const u8 gText_MenuItemDesc_1[];
+extern const u8 gText_MenuItemDesc_2[];
+extern const u8 gText_MenuItemDesc_3[];
+extern const u8 gText_MenuItemDesc_4[];
+extern const u8 gText_MenuItemDesc_5[];
+extern const u8 gText_MenuItemDesc_6[];
+extern const u8 gText_MenuItemDesc_7[];
+extern const u8 gText_MenuItemDesc_8[];
+extern const u8 gText_MenuItemDesc_9[];
+extern const u8 gText_MenuItemDesc_10[];
+
 const u8 *const MenuItems[] =
 {
     gText_MenuItem_1,
@@ -103,4 +116,19 @@ const u8 *const MenuItems[] =
     gText_MenuItem_9,
     gText_MenuItem_10,
 };
+
+const u8 *const MenuItemDescriptions[] =
+{
+    gText_MenuItemDesc_1,
+    gText_MenuItemDesc_2,
+    gText_MenuItemDesc_3,
+    gText_MenuItemDesc_4,
+    gText_MenuItemDesc_5,
+    gText_MenuItemDesc_6,
+    gText_MenuItemDesc_7,
+    gText_MenuItemDesc_8,
+    gText_MenuItemDesc_9,
+    gText_MenuItemDesc_10,
+};
+
 #endif // GUARD_SHOW_MENU_H

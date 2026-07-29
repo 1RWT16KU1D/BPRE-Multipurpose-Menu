@@ -109,6 +109,16 @@ static const struct WindowTemplate unusedArg sMenuWindowTemplates[WINDOW_COUNT +
 		.paletteNum = 14,
 		.baseBlock = 19,
 	},
+    [WINDOW_DESCRIPTION] =
+    {
+        .bg = BG_TEXT,
+        .tilemapLeft = 1,
+        .tilemapTop = 16,
+        .width = 30,
+        .height = 4,
+        .paletteNum = 14,
+        .baseBlock = 285,
+    },
 	//Base block 500 is used for frame tiles
 	DUMMY_WIN_TEMPLATE
 };
@@ -139,6 +149,7 @@ static void Task_ImageWaitForKeyPress(u8 taskId);
 static void Task_ImageFadeOut(u8 taskId);
 static void PrintMenuTitle(void);
 static void PrintMenuItems(void);
+static void PrintMenuItemDescription(void);
 static void PrintMenuGUI(void);
 
 static void CleanWindow(u8 windowId)
@@ -302,8 +313,10 @@ static void UpdateMenuSelection(bool8 movingDown)
         else
             gMenuStruct->cursorPos--;
     }
+
     gMenuStruct->selectedItem = gMenuStruct->firstVisibleItem + gMenuStruct->cursorPos;
     PrintMenuItems();
+    PrintMenuItemDescription();
 }
 
 static void Task_ImageWaitForKeyPress(u8 taskId)
@@ -342,7 +355,7 @@ static void Task_ImageFadeOut(u8 taskId)
 static void PrintMenuTitle(void)
 {
     CleanWindow(WINDOW_TITLE);
-    WindowPrint(WINDOW_TITLE, 1, 0, 0, &sWhiteText, 0, gText_MenuTitle);
+    WindowPrint(WINDOW_TITLE, FONT_SIZE, 0, 0, &sWhiteText, 0, gText_MenuTitle);
     CommitWindow(WINDOW_TITLE);
 }
 
@@ -359,15 +372,23 @@ static void PrintMenuItems(void)
         {
             StringCopy(itemText, (const u8[]){CHAR_ARROW_RIGHT, EOS});
             StringAppend(itemText, MenuItems[item]);
-            WindowPrint(WINDOW_ITEMS, 1, 0, i * 16, &sBlackText, 0, itemText);
+            WindowPrint(WINDOW_ITEMS, FONT_SIZE, 0, i * 16, &sBlackText, 0, itemText);
         }
         else
         {
             StringCopy(itemText, MenuItems[item]);
-            WindowPrint(WINDOW_ITEMS, 1, 4, i * 16, &sBlackText, 0, itemText);
+            WindowPrint(WINDOW_ITEMS, FONT_SIZE, 4, i * 16, &sBlackText, 0, itemText);
         }
     }
     CommitWindow(WINDOW_ITEMS);
+}
+
+// Print the description of the selected menu item to the screen
+static void PrintMenuItemDescription(void)
+{
+    CleanWindow(WINDOW_DESCRIPTION);
+    WindowPrint(WINDOW_DESCRIPTION, FONT_SIZE, 0, 0, &sWhiteText, 0, MenuItemDescriptions[gMenuStruct->selectedItem]);
+    CommitWindow(WINDOW_DESCRIPTION);
 }
 
 // Print the menu GUI text to the screen
@@ -378,6 +399,7 @@ static void PrintMenuGUI(void)
 
     PrintMenuTitle();
     PrintMenuItems();
+    PrintMenuItemDescription();
 }
 
 void ShowImage(void)

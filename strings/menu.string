@@ -1,6 +1,7 @@
 #org @gText_MenuTitle
 Custom Menu
 
+// Menu Items
 #org @gText_MenuItem_1
 Menu Item 1
 
@@ -30,3 +31,34 @@ Menu Item 9
 
 #org @gText_MenuItem_10
 Menu Item 10
+
+// Menu Item Descriptions
+#org @gText_MenuItemDesc_1
+Description of Menu Item 1
+
+#org @gText_MenuItemDesc_2
+Description of Menu Item 2
+
+#org @gText_MenuItemDesc_3
+Description of Menu Item 3
+
+#org @gText_MenuItemDesc_4
+Description of Menu Item 4
+
+#org @gText_MenuItemDesc_5
+Description of Menu Item 5
+
+#org @gText_MenuItemDesc_6
+Description of Menu Item 6
+
+#org @gText_MenuItemDesc_7
+Description of Menu Item 7
+
+#org @gText_MenuItemDesc_8
+Description of Menu Item 8
+
+#org @gText_MenuItemDesc_9
+Description of Menu Item 9
+
+#org @gText_MenuItemDesc_10
+Description of Menu Item 10
