@@ -21,6 +21,7 @@
 #include "../include/string_util.h"
 
 #include "../include/constants/field_weather.h"
+#include "../include/constants/songs.h"
 
 #include "../include/new/ram_locs.h"
 #include "../include/new/Vanilla_functions.h"
@@ -263,7 +264,7 @@ static void CB2_FullImage(void)
 
         case MENU_STATE_FADE_IN:
             BeginNormalPaletteFade(0xFFFFFFFF, 0, 16, 0, RGB_BLACK);
-
+            PlaySE(SE_WIN_OPEN);
             gMain.state++;
             break;
 
@@ -296,10 +297,14 @@ static void UpdateMenuSelection(bool8 movingDown)
             if (gMenuStruct->selectedItem == MENU_ITEM_COUNT - 1) // End of the item list
                 return;
 
+            PlaySE(SE_SELECT);
             gMenuStruct->firstVisibleItem++;
         }
         else
+        {
+            PlaySE(SE_SELECT);
             gMenuStruct->cursorPos++;
+        }
     }
     else
     {
@@ -308,10 +313,14 @@ static void UpdateMenuSelection(bool8 movingDown)
             if (gMenuStruct->selectedItem == 0) // Beginning of the item list
                 return;
             
+            PlaySE(SE_SELECT);
             gMenuStruct->firstVisibleItem--;
         }
         else
+        {
+            PlaySE(SE_SELECT);
             gMenuStruct->cursorPos--;
+        }
     }
 
     gMenuStruct->selectedItem = gMenuStruct->firstVisibleItem + gMenuStruct->cursorPos;
@@ -321,7 +330,7 @@ static void UpdateMenuSelection(bool8 movingDown)
 
 static void Task_ImageWaitForKeyPress(u8 taskId)
 {
-    if (gMain.newKeys & (A_BUTTON | B_BUTTON))
+    if (gMain.newKeys & B_BUTTON)
     {
         BeginNormalPaletteFade(0xFFFFFFFF, 0, 0, 16, RGB_BLACK);
         gTasks[taskId].func = Task_ImageFadeOut;
@@ -346,6 +355,8 @@ static void Task_ImageFadeOut(u8 taskId)
 
         ScriptContext2_Disable();
         gMain.state = 0;
+
+        PlaySE(SE_PC_OFF);
         SetMainCallback2(CB2_ReturnToFieldContinueScript);
         DestroyTask(taskId);
     }
