@@ -4,6 +4,17 @@
 #include "../global.h"
 #include "../window.h"
 
+struct MenuStruct 
+{
+    u8 cursorPos;
+    u8 selectedItem;
+    u8 scrollOffset;
+    u8 visibleStart;
+};
+
+#define VISIBLE_ITEMS 7
+#define MENU_ITEM_COUNT NELEMS(MenuItems)
+
 extern const u8 Menu_BGTiles[];
 extern const u16 Menu_BGMap[];
 extern const u8 Menu_BGPal[];

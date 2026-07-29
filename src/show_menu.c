@@ -24,21 +24,22 @@
 #include "../include/new/ram_locs.h"
 #include "../include/new/Vanilla_functions.h"
 
+#define gMenuStruct ((struct MenuStruct*) 0x203E008)
 #define tilemapbuffer (*((u8**) 0x203E038)) 
 #define BG_MAP_BYTES 0x800
 
 struct ImageData
 {
     const u8 *tiles;
-    const u16 *tilemap;
     const u8 *pal;
+    const u16 *tilemap;
 };
 
 const struct ImageData MenuBGData =
 {
     .tiles = Menu_BGTiles,
-    .tilemap = Menu_BGMap,
-    .pal = Menu_BGPal
+    .pal = Menu_BGPal,
+    .tilemap = Menu_BGMap
 };
 
 static const struct BgTemplate sMenuBGTemplates[] =
@@ -184,6 +185,11 @@ static void CB2_FullImage(void)
     {
         case MENU_STATE_INIT:
         default:
+            gMenuStruct->cursorPos = 0;
+            gMenuStruct->selectedItem = 0;
+            gMenuStruct->scrollOffset = 0;
+            gMenuStruct->visibleStart = 0xFF;
+
             SetBGMVolume_SuppressHelpSystemReduction(160);
             SetVBlankCallback(NULL);
 
@@ -276,6 +282,44 @@ static void Task_ImageWaitForKeyPress(u8 taskId)
         BeginNormalPaletteFade(0xFFFFFFFF, 0, 0, 16, RGB_BLACK);
         gTasks[taskId].func = Task_ImageFadeOut;
     }
+    else if (gMain.newKeys & DPAD_UP)
+    {
+        if (gMenuStruct->selectedItem > 0)
+        {
+            gMenuStruct->selectedItem--;
+
+            if (gMenuStruct->cursorPos > 0)
+            {
+                gMenuStruct->cursorPos--;
+            }
+            else if (gMenuStruct->scrollOffset > 0)
+            {
+                gMenuStruct->scrollOffset--;
+            }
+
+            if (gMenuStruct->scrollOffset != gMenuStruct->visibleStart)
+                PrintMenuItems();
+        }
+    }
+    else if (gMain.newKeys & DPAD_DOWN)
+    {
+        if (gMenuStruct->selectedItem + 1 < MENU_ITEM_COUNT)
+        {
+            gMenuStruct->selectedItem++;
+
+            if (gMenuStruct->cursorPos < VISIBLE_ITEMS - 1)
+            {
+                gMenuStruct->cursorPos++;
+            }
+            else if (gMenuStruct->scrollOffset + VISIBLE_ITEMS < MENU_ITEM_COUNT)
+            {
+                gMenuStruct->scrollOffset++;
+            }
+
+            if (gMenuStruct->scrollOffset != gMenuStruct->visibleStart)
+                PrintMenuItems();
+        }
+    }
 }
 
 // Free the tilemap buffer and return to the previous CB
@@ -304,11 +348,23 @@ static void PrintMenuTitle(void)
 // Print menu items to the screen
 static void PrintMenuItems(void)
 {
+    u8 newStart = gMenuStruct->scrollOffset;
+    if (newStart == gMenuStruct->visibleStart)
+        return;
+
+    gMenuStruct->visibleStart = newStart;
+
     CleanWindow(WINDOW_ITEMS);
-    for (u32 i = 0; i < NELEMS(MenuItems); ++i)
+
+    for (u32 i = 0; i < VISIBLE_ITEMS; ++i)
     {
-        WindowPrint(WINDOW_ITEMS, 1, 4, i * 16, &sBlackText, 0, MenuItems[i]); // 4 because cursor will be displayed at the left
+        u8 itemIndex = gMenuStruct->scrollOffset + i;
+        if (itemIndex >= MENU_ITEM_COUNT)
+            break;
+
+        WindowPrint(WINDOW_ITEMS, 1, 4, i * 16, &sBlackText, 0, MenuItems[itemIndex]);
     }
+
     CommitWindow(WINDOW_ITEMS);
 }
 
