@@ -30,8 +30,8 @@
 struct ImageData
 {
     const u8 *tiles;
-    const u8 *tilemap;
-    const u16 *pal;
+    const u16 *tilemap;
+    const u8 *pal;
 };
 
 const struct ImageData MenuBGData =
@@ -47,7 +47,7 @@ static const struct BgTemplate sMenuBGTemplates[] =
 	{
 		.bg = BG_TEXT,
 		.charBaseIndex = 0,
-		.mapBaseIndex = 31,
+		.mapBaseIndex = 28,
 		.screenSize = 0,
 		.paletteMode = 0,
 		.priority = 0,
@@ -57,7 +57,7 @@ static const struct BgTemplate sMenuBGTemplates[] =
 	{
 		.bg = BG_NIL,
 		.charBaseIndex = 1,
-		.mapBaseIndex = 30,
+		.mapBaseIndex = 29,
 		.screenSize = 0,
 		.paletteMode = 0,
 		.priority = 1,
@@ -67,7 +67,7 @@ static const struct BgTemplate sMenuBGTemplates[] =
 	{
 		.bg = BG_NIL_2,
 		.charBaseIndex = 2,
-		.mapBaseIndex = 29,
+		.mapBaseIndex = 30,
 		.screenSize = 0,
 		.paletteMode = 0,
 		.priority = 2,
@@ -76,9 +76,9 @@ static const struct BgTemplate sMenuBGTemplates[] =
 	[BG_BACKGROUND] =
 	{
 		.bg = BG_BACKGROUND,
-		.charBaseIndex = 0,
-		.mapBaseIndex = 31,
-		.screenSize = 2,
+        .charBaseIndex = 3,
+        .mapBaseIndex = 31,
+        .screenSize = 0,
 		.paletteMode = 0,
 		.priority = 3,
 		.baseTile = 0,
@@ -90,22 +90,22 @@ static const struct WindowTemplate unusedArg sMenuWindowTemplates[WINDOW_COUNT +
 	[WINDOW_TITLE] =
 	{
 		.bg = BG_TEXT,
-		.tilemapLeft = 1,
-		.tilemapTop = 15,
-		.width = 28,
-		.height = 4,
+		.tilemapLeft = 22,
+		.tilemapTop = 1,
+		.width = 9,
+		.height = 2,
 		.paletteNum = 14,
 		.baseBlock = 1,
 	},
 	[WINDOW_ITEMS] =
 	{
 		.bg = BG_TEXT,
-		.tilemapLeft = 21,
-		.tilemapTop = 7,
-		.width = 7,
-		.height = 6,
+		.tilemapLeft = 1,
+		.tilemapTop = 2,
+		.width = 19,
+		.height = 14,
 		.paletteNum = 14,
-		.baseBlock = 113,
+		.baseBlock = 19,
 	},
 	//Base block 500 is used for frame tiles
 	DUMMY_WIN_TEMPLATE
@@ -127,11 +127,41 @@ static void MainCB2_Image(void)
 }
 
 // This file's functions
+static void CleanWindow(u8 windowId);
+static void CommitWindow(u8 windowId);
+static void CleanWindows(void);
+static void CommitWindows(void);
+
 static void Task_ImageFadeIn(u8 taskId);
 static void Task_ImageWaitForKeyPress(u8 taskId);
 static void Task_ImageFadeOut(u8 taskId);
+static void PrintMenuTitle(void);
+static void PrintMenuGUI(void);
 
-static void LoadFullscreenImage(void)
+static void CleanWindow(u8 windowId)
+{
+	FillWindowPixelBuffer(windowId, PIXEL_FILL(0));
+}
+
+static void CleanWindows(void)
+{
+	for (u32 i = 0; i < WINDOW_COUNT; ++i)
+		CleanWindow(i);
+}
+
+static void CommitWindow(u8 windowId)
+{
+	CopyWindowToVram(windowId, COPYWIN_BOTH);
+	PutWindowTilemap(windowId);
+}
+
+static void CommitWindows(void)
+{
+	for (u32 i = 0; i < WINDOW_COUNT; ++i)
+		CommitWindow(i);
+}
+
+static void LoadMenuBG(void)
 {
     const struct ImageData *img = &MenuBGData;
     CpuFastFill16(0, (void*)BG_CHAR_ADDR(0), BG_CHAR_SIZE * 4);
@@ -151,53 +181,83 @@ static void CB2_FullImage(void)
 {
     switch (gMain.state)
     {
-        case 0:
+        case MENU_STATE_INIT:
+        default:
             SetBGMVolume_SuppressHelpSystemReduction(160);
             SetVBlankCallback(NULL);
+
             DmaFill16(3, 0, VRAM, VRAM_SIZE);
             DmaFill32(3, 0, OAM, OAM_SIZE);
             DmaFill16(3, 0, PLTT, PLTT_SIZE);
+
             gMain.state++;
             break;
 
-        case 1:
+        case MENU_STATE_RESET:
             ScanlineEffect_Stop();
             ResetTasks();
             ResetSpriteData();
             ResetTempTileDataBuffers();
             ResetPaletteFade();
             FreeAllSpritePalettes();
+
             gMain.state++;
             break;
 
-        case 2:
+        case MENU_STATE_INIT_BGS:
             tilemapbuffer = Calloc(BG_MAP_BYTES);
+
             ResetBgsAndClearDma3BusyFlags(0);
-            InitBgsFromTemplates(0, sMenuBGTemplates, 4);
+            InitBgsFromTemplates(0, sMenuBGTemplates, NELEMS(sMenuBGTemplates));
             SetBgTilemapBuffer(BG_BACKGROUND, tilemapbuffer);
+
+            ChangeBgX(BG_BACKGROUND, 0, 0);
+            ChangeBgY(BG_BACKGROUND, 0, 0);
+            ChangeBgX(BG_TEXT, 0, 0);
+            ChangeBgY(BG_TEXT, 0, 0);
+
             gMain.state++;
             break;
 
-        case 3:
-            LoadFullscreenImage();
+        case MENU_STATE_LOAD_GFX:
+            LoadMenuBG();
             gMain.state++;
             break;
 
-        case 4:
+        case MENU_STATE_SHOW_BGS:
             if (!free_temp_tile_data_buffers_if_possible())
             {
                 ShowBg(BG_TEXT);
                 ShowBg(BG_BACKGROUND);
+
                 CopyBgTilemapBufferToVram(BG_BACKGROUND);
 
-                BeginNormalPaletteFade(0xFFFFFFFF, 0, 16, 0, RGB_BLACK);
-
-                SetVBlankCallback(VBlankCB_Image);
-                CreateTask(Task_ImageFadeIn, 0);
-                SetMainCallback2(MainCB2_Image);
-
-                gMain.state = 0;
+                gMain.state++;
             }
+            break;
+
+        case MENU_STATE_INIT_WINDOWS:
+            InitWindows(sMenuWindowTemplates);
+            DeactivateAllTextPrinters();
+
+            gMain.state++;
+            break;
+
+        case MENU_STATE_FADE_IN:
+            BeginNormalPaletteFade(0xFFFFFFFF, 0, 16, 0, RGB_BLACK);
+
+            gMain.state++;
+            break;
+
+        case MENU_STATE_START:
+            SetVBlankCallback(VBlankCB_Image);
+
+            PrintMenuGUI();
+
+            CreateTask(Task_ImageFadeIn, 0);
+            SetMainCallback2(MainCB2_Image);
+
+            gMain.state = 0;
             break;
     }
 }
@@ -230,6 +290,24 @@ static void Task_ImageFadeOut(u8 taskId)
         SetMainCallback2(CB2_ReturnToFieldContinueScript);
         DestroyTask(taskId);
     }
+}
+
+// Print the menu title to the screen
+static void PrintMenuTitle(void)
+{
+    CleanWindow(WINDOW_TITLE);
+    WindowPrint(WINDOW_TITLE, 1, 0, 0, &sWhiteText, 0, gText_MenuTitle);
+    CommitWindow(WINDOW_TITLE);
+}
+
+// Print the menu GUI text to the screen
+static void PrintMenuGUI(void)
+{
+    CleanWindows();
+    CommitWindows();
+
+    PrintMenuTitle();
+    //PrintMenuItems();
 }
 
 void ShowImage(void)
