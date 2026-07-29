@@ -1,0 +1,19 @@
+*.ini
+*.gba
+build/*
+*.sgm
+*.dmp
+*.bak
+*.lnk
+*.sav
+*.sa1
+*.sg1
+*.ss1
+*.ss2
+*.ss3
+*.ss4
+*.ss5
+*.toml
+
+# pycache files
+*.pyc
