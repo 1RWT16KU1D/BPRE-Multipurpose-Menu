@@ -1,5 +1,6 @@
 *.ini
 *.gba
+*.png
 build/*
 *.sgm
 *.dmp
