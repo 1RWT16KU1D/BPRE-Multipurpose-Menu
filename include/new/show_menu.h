@@ -68,6 +68,29 @@ enum MenuWindows
 };
 
 extern const u8 gText_MenuTitle[];
-extern const u8 gText_MenuItems[];
 
+extern const u8 gText_MenuItem_1[];
+extern const u8 gText_MenuItem_2[];
+extern const u8 gText_MenuItem_3[];
+extern const u8 gText_MenuItem_4[];
+extern const u8 gText_MenuItem_5[];
+extern const u8 gText_MenuItem_6[];
+extern const u8 gText_MenuItem_7[];
+extern const u8 gText_MenuItem_8[];
+extern const u8 gText_MenuItem_9[];
+extern const u8 gText_MenuItem_10[];
+
+const u8 *const MenuItems[] =
+{
+    gText_MenuItem_1,
+    gText_MenuItem_2,
+    gText_MenuItem_3,
+    gText_MenuItem_4,
+    gText_MenuItem_5,
+    gText_MenuItem_6,
+    gText_MenuItem_7,
+    gText_MenuItem_8,
+    gText_MenuItem_9,
+    gText_MenuItem_10,
+};
 #endif // GUARD_SHOW_MENU_H

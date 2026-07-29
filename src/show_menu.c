@@ -101,7 +101,7 @@ static const struct WindowTemplate unusedArg sMenuWindowTemplates[WINDOW_COUNT +
 	{
 		.bg = BG_TEXT,
 		.tilemapLeft = 1,
-		.tilemapTop = 2,
+		.tilemapTop = 1,
 		.width = 19,
 		.height = 14,
 		.paletteNum = 14,
@@ -136,6 +136,7 @@ static void Task_ImageFadeIn(u8 taskId);
 static void Task_ImageWaitForKeyPress(u8 taskId);
 static void Task_ImageFadeOut(u8 taskId);
 static void PrintMenuTitle(void);
+static void PrintMenuItems(void);
 static void PrintMenuGUI(void);
 
 static void CleanWindow(u8 windowId)
@@ -300,6 +301,17 @@ static void PrintMenuTitle(void)
     CommitWindow(WINDOW_TITLE);
 }
 
+// Print menu items to the screen
+static void PrintMenuItems(void)
+{
+    CleanWindow(WINDOW_ITEMS);
+    for (u32 i = 0; i < NELEMS(MenuItems); ++i)
+    {
+        WindowPrint(WINDOW_ITEMS, 1, 4, i * 16, &sBlackText, 0, MenuItems[i]); // 4 because cursor will be displayed at the left
+    }
+    CommitWindow(WINDOW_ITEMS);
+}
+
 // Print the menu GUI text to the screen
 static void PrintMenuGUI(void)
 {
@@ -307,7 +319,7 @@ static void PrintMenuGUI(void)
     CommitWindows();
 
     PrintMenuTitle();
-    //PrintMenuItems();
+    PrintMenuItems();
 }
 
 void ShowImage(void)
