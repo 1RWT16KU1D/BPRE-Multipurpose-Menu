@@ -8,13 +8,10 @@ struct MenuStruct
 {
     u8 cursorPos;
     u8 selectedItem;
-    u8 scrollOffset;
-    u8 visibleStart;
-    u8 visibleSelection;
 };
 
 #define VISIBLE_ITEMS 7
-#define MENU_ITEM_COUNT NELEMS(MenuItems)
+#define MENU_ITEM_COUNT (u8)NELEMS(MenuItems)
 
 extern const u8 Menu_BGTiles[];
 extern const u16 Menu_BGMap[];

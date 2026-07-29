@@ -188,9 +188,6 @@ static void CB2_FullImage(void)
         default:
             gMenuStruct->cursorPos = 0;
             gMenuStruct->selectedItem = 0;
-            gMenuStruct->scrollOffset = 0;
-            gMenuStruct->visibleStart = 0xFF;
-            gMenuStruct->visibleSelection = 0xFF;
 
             SetBGMVolume_SuppressHelpSystemReduction(160);
             SetVBlankCallback(NULL);
@@ -279,37 +276,35 @@ static void Task_ImageFadeIn(u8 taskId)
 
 static void UpdateMenuSelection(bool8 movingDown)
 {
-    u8 oldScrollOffset = gMenuStruct->scrollOffset;
-    u8 oldSelectedItem = gMenuStruct->selectedItem;
-
+    // Borders
     if (movingDown)
     {
-        if ((u32)gMenuStruct->selectedItem + 1 >= (u32)MENU_ITEM_COUNT)
-            return;
-        gMenuStruct->selectedItem++;
+        if (gMenuStruct->cursorPos + 1 == VISIBLE_ITEMS) // Bottom of the list
+        {
+            if (gMenuStruct->selectedItem + VISIBLE_ITEMS >= MENU_ITEM_COUNT) // End of the item list
+                return;
+
+            gMenuStruct->selectedItem++;
+        }
+        else
+            gMenuStruct->cursorPos++;
+
+        PrintMenuItems();
     }
     else
     {
-        if (gMenuStruct->selectedItem == 0)
-            return;
-        gMenuStruct->selectedItem--;
-    }
+        if (gMenuStruct->cursorPos == 0) // Top of the list
+        {
+            if (gMenuStruct->selectedItem == 0) // Beginning of the item list
+                return;
+            
+            gMenuStruct->selectedItem--;
+        }
+        else
+            gMenuStruct->cursorPos--;
 
-    if (gMenuStruct->selectedItem < gMenuStruct->scrollOffset)
-    {
-        gMenuStruct->scrollOffset = gMenuStruct->selectedItem;
-    }
-    else if (gMenuStruct->selectedItem >= gMenuStruct->scrollOffset + VISIBLE_ITEMS)
-    {
-        gMenuStruct->scrollOffset = gMenuStruct->selectedItem - (VISIBLE_ITEMS - 1);
-        if ((u32)gMenuStruct->scrollOffset + VISIBLE_ITEMS > (u32)MENU_ITEM_COUNT)
-            gMenuStruct->scrollOffset = MENU_ITEM_COUNT - VISIBLE_ITEMS;
-    }
-
-    gMenuStruct->cursorPos = gMenuStruct->selectedItem - gMenuStruct->scrollOffset;
-
-    if (gMenuStruct->scrollOffset != oldScrollOffset || gMenuStruct->selectedItem != oldSelectedItem)
         PrintMenuItems();
+    }
 }
 
 static void Task_ImageWaitForKeyPress(u8 taskId)
@@ -355,34 +350,23 @@ static void PrintMenuTitle(void)
 // Print menu items to the screen
 static void PrintMenuItems(void)
 {
-    u8 newStart = gMenuStruct->scrollOffset;
-    if (newStart == gMenuStruct->visibleStart && gMenuStruct->selectedItem == gMenuStruct->visibleSelection)
-        return;
-
-    gMenuStruct->visibleStart = newStart;
-    gMenuStruct->visibleSelection = gMenuStruct->selectedItem;
-
     CleanWindow(WINDOW_ITEMS);
 
-    for (u32 i = 0; i < VISIBLE_ITEMS; ++i)
+    u8 itemText[24];
+    for (u8 i = 0; i < VISIBLE_ITEMS; ++i)
     {
-        u8 itemIndex = gMenuStruct->scrollOffset + i;
-        if (itemIndex >= MENU_ITEM_COUNT)
-            break;
-
-        if (itemIndex == gMenuStruct->selectedItem)
+        if (i == gMenuStruct->cursorPos)
         {
-            u8 itemText[32];
             StringCopy(itemText, (const u8[]){CHAR_ARROW_RIGHT, EOS});
-            StringAppend(itemText, MenuItems[itemIndex]);
+            StringAppend(itemText, MenuItems[gMenuStruct->selectedItem + i]);
             WindowPrint(WINDOW_ITEMS, 1, 0, i * 16, &sBlackText, 0, itemText);
         }
         else
         {
-            WindowPrint(WINDOW_ITEMS, 1, 4, i * 16, &sBlackText, 0, MenuItems[itemIndex]);
+            StringCopy(itemText, MenuItems[gMenuStruct->selectedItem + i]);
+            WindowPrint(WINDOW_ITEMS, 1, 4, i * 16, &sBlackText, 0, itemText);
         }
     }
-
     CommitWindow(WINDOW_ITEMS);
 }
 
