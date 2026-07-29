@@ -187,6 +187,7 @@ static void CB2_FullImage(void)
         case MENU_STATE_INIT:
         default:
             gMenuStruct->cursorPos = 0;
+            gMenuStruct->firstVisibleItem = 0;
             gMenuStruct->selectedItem = 0;
 
             SetBGMVolume_SuppressHelpSystemReduction(160);
@@ -279,17 +280,15 @@ static void UpdateMenuSelection(bool8 movingDown)
     // Borders
     if (movingDown)
     {
-        if (gMenuStruct->cursorPos + 1 == VISIBLE_ITEMS) // Bottom of the list
+        if (gMenuStruct->cursorPos == VISIBLE_ITEMS - 1) // Bottom of the list
         {
-            if (gMenuStruct->selectedItem + VISIBLE_ITEMS >= MENU_ITEM_COUNT) // End of the item list
+            if (gMenuStruct->selectedItem == MENU_ITEM_COUNT - 1) // End of the item list
                 return;
 
-            gMenuStruct->selectedItem++;
+            gMenuStruct->firstVisibleItem++;
         }
         else
             gMenuStruct->cursorPos++;
-
-        PrintMenuItems();
     }
     else
     {
@@ -298,13 +297,13 @@ static void UpdateMenuSelection(bool8 movingDown)
             if (gMenuStruct->selectedItem == 0) // Beginning of the item list
                 return;
             
-            gMenuStruct->selectedItem--;
+            gMenuStruct->firstVisibleItem--;
         }
         else
             gMenuStruct->cursorPos--;
-
-        PrintMenuItems();
     }
+    gMenuStruct->selectedItem = gMenuStruct->firstVisibleItem + gMenuStruct->cursorPos;
+    PrintMenuItems();
 }
 
 static void Task_ImageWaitForKeyPress(u8 taskId)
@@ -355,15 +354,16 @@ static void PrintMenuItems(void)
     u8 itemText[24];
     for (u8 i = 0; i < VISIBLE_ITEMS; ++i)
     {
+        u8 item = gMenuStruct->firstVisibleItem + i;
         if (i == gMenuStruct->cursorPos)
         {
             StringCopy(itemText, (const u8[]){CHAR_ARROW_RIGHT, EOS});
-            StringAppend(itemText, MenuItems[gMenuStruct->selectedItem + i]);
+            StringAppend(itemText, MenuItems[item]);
             WindowPrint(WINDOW_ITEMS, 1, 0, i * 16, &sBlackText, 0, itemText);
         }
         else
         {
-            StringCopy(itemText, MenuItems[gMenuStruct->selectedItem + i]);
+            StringCopy(itemText, MenuItems[item]);
             WindowPrint(WINDOW_ITEMS, 1, 4, i * 16, &sBlackText, 0, itemText);
         }
     }

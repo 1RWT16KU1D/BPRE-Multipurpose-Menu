@@ -7,6 +7,7 @@
 struct MenuStruct 
 {
     u8 cursorPos;
+    u8 firstVisibleItem;
     u8 selectedItem;
 };
 
