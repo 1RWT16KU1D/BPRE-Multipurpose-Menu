@@ -382,11 +382,11 @@ static void Task_ImageWaitForKeyPress(u8 taskId)
         BeginNormalPaletteFade(0xFFFFFFFF, 0, 0, 16, RGB_BLACK);
         gTasks[taskId].func = Task_ImageFadeOut;
     }
-    else if (gMain.newKeys & DPAD_UP)
+    else if (JOY_NEW_AND_REPEATED(DPAD_UP))
     {
         UpdateMenuSelection(FALSE);
     }
-    else if (gMain.newKeys & DPAD_DOWN)
+    else if (JOY_NEW_AND_REPEATED(DPAD_DOWN))
     {
         UpdateMenuSelection(TRUE);
     }
