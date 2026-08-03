@@ -4,29 +4,77 @@
 #include "../global.h"
 #include "../window.h"
 
+// Text colors
+static const struct TextColor sWhiteText =
+{
+	.bgColor = TEXT_COLOR_TRANSPARENT,
+	.fgColor = TEXT_COLOR_WHITE,
+	.shadowColor = TEXT_COLOR_DARK_GREY
+};
+
+static const struct TextColor sBlackText =
+{
+	.bgColor = TEXT_COLOR_TRANSPARENT,
+	.fgColor = TEXT_COLOR_DARK_GREY,
+	.shadowColor = TEXT_COLOR_LIGHT_GREY
+};
+
+static const struct TextColor sRedText =
+{
+	.bgColor = TEXT_COLOR_TRANSPARENT,
+	.fgColor = TEXT_COLOR_RED,
+	.shadowColor = TEXT_COLOR_LIGHT_GREY
+};
+
+static const struct TextColor sBlueText =
+{
+    .bgColor = TEXT_COLOR_TRANSPARENT,
+    .fgColor = TEXT_COLOR_BLUE,
+    .shadowColor = TEXT_COLOR_LIGHT_BLUE
+};
+
+static const struct TextColor sGreenText =
+{
+    .bgColor = TEXT_COLOR_TRANSPARENT,
+    .fgColor = TEXT_COLOR_GREEN,
+    .shadowColor = TEXT_COLOR_LIGHT_GREEN
+};
+
+static const struct TextColor sGrayText =
+{
+    .bgColor = TEXT_COLOR_TRANSPARENT,
+    .fgColor = TEXT_COLOR_LIGHT_GREY,
+    .shadowColor = TEXT_COLOR_DARK_GREY
+};
+#define COLOR(color) &s$##color##Text
+
+// Configurable options
+#define BONUS_PAGE // Comment this out to disable the bonus menu page
+
+#define COLOR_MENU_TITLE COLOR(White) // Title text color
+#define COLOR_DESCRIPTION COLOR(Gray) // Description text color
+#define COLOR_MENU_ITEM COLOR(Black) // Menu item list color
+#define COLOR_MENU_SELECTED_ITEM COLOR(White) // Selected menu item text color (including arrow)
+#define COLOR_PREVIOUS_NEXT COLOR(Green) // Previous/Next page text color
+
+
+// Don't touch!
 #define VISIBLE_ITEMS 7
 #define MENU_ITEM_COUNT (u8)NELEMS(MenuItems)
 #define FONT_SIZE 1
+#define FONT_SIZE_SMALL 0
 
-// Configurable options
-#define BONUS_MENU // Comment this out to disable the bonus menu page
-#define BONUS_MENU_COUNT (u8)NELEMS(MenuBonusItems)
+#define BONUS_PAGE_COUNT (u8)NELEMS(MenuBonusItems)
 
-extern const u8 Menu_BGTiles[];
-extern const u8 Menu_BGPal[];
-extern const u16 Menu_BGMap[];
 
-#ifdef BONUS_MENU
-extern const u8 Menu_BG_BonusPal[];
-#endif
-
+/// enums and structs
 struct MenuStruct 
 {
     u8 cursorPos;
     u8 firstVisibleItem;
     u8 selectedItem;
 
-    #ifdef BONUS_MENU
+    #ifdef BONUS_PAGE
     bool8 isBonusPage;
     u8 bonusCursorPos;
     u8 bonusFirstVisibleItem;
@@ -34,23 +82,9 @@ struct MenuStruct
     #endif
 };
 
-static const struct TextColor sWhiteText =
-{
-	.bgColor = TEXT_COLOR_TRANSPARENT,
-	.fgColor = TEXT_COLOR_WHITE,
-	.shadowColor = TEXT_COLOR_DARK_GREY,
-};
-
-static const struct TextColor sBlackText =
-{
-	.bgColor = TEXT_COLOR_TRANSPARENT,
-	.fgColor = TEXT_COLOR_DARK_GREY,
-	.shadowColor = TEXT_COLOR_LIGHT_GREY,
-};
-
 enum MenuStates
 {
-    MENU_STATE_INIT = 0,
+    MENU_STATE_INIT,
     MENU_STATE_RESET,
     MENU_STATE_INIT_BGS,
     MENU_STATE_LOAD_GFX,
@@ -60,7 +94,7 @@ enum MenuStates
     MENU_STATE_START,
 };
 
-enum MenBGs
+enum MenuBGs
 {
 	BG_TEXT,
 	BG_NIL,
@@ -74,11 +108,23 @@ enum MenuWindows
     WINDOW_ITEMS,
     WINDOW_DESCRIPTION,
 
-    #ifdef BONUS_MENU
+    #ifdef BONUS_PAGE
     WINDOW_NEXT_PREVIOUS_PAGE_TEXT,
     #endif
 	WINDOW_COUNT,
 };
+
+
+// Graphics
+extern const u8 Menu_BGTiles[];
+extern const u8 Menu_BGPal[];
+extern const u16 Menu_BGMap[];
+
+#ifdef BONUS_PAGE
+extern const u8 Menu_BG_BonusPal[];
+#endif
+
+/* ========== String Declarations ========== */
 
 // Title
 extern const u8 gText_MenuTitle[];
@@ -135,7 +181,7 @@ const u8 *const MenuItemDescriptions[] =
     gText_MenuItemDesc_10,
 };
 
-#ifdef BONUS_MENU
+#ifdef BONUS_PAGE
 // Bonus Menu Title
 extern const u8 gText_MenuBonusTitle[];
 

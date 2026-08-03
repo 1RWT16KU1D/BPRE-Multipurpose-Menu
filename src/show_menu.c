@@ -121,7 +121,7 @@ static const struct WindowTemplate unusedArg sMenuWindowTemplates[WINDOW_COUNT +
         .baseBlock = 285,
     },
 
-    #ifdef BONUS_MENU
+    #ifdef BONUS_PAGE
     [WINDOW_NEXT_PREVIOUS_PAGE_TEXT] =
     {
         .bg = BG_TEXT,
@@ -164,7 +164,7 @@ static void Task_ImageFadeOut(u8 taskId);
 static void PrintMenuTitle(void);
 static void PrintMenuItems(void);
 static void PrintMenuItemDescription(void);
-#ifdef BONUS_MENU
+#ifdef BONUS_PAGE
 static void PrintNextPreviousPageText(void);
 #endif
 static void PrintMenuGUI(void);
@@ -205,7 +205,7 @@ static void LoadMenuBG(void)
     LZDecompressWram(img->tilemap, tilemapbuffer);
 
     // Palette
-    #ifdef BONUS_MENU
+    #ifdef BONUS_PAGE
     LoadPalette(gMenuStruct->isBonusPage ? Menu_BG_BonusPal : img->pal, 0, 0x20);
     #else
     LoadPalette(img->pal, 0, 0x20);
@@ -222,7 +222,7 @@ static void CB2_FullImage(void)
             gMenuStruct->firstVisibleItem = 0;
             gMenuStruct->selectedItem = 0;
 
-            #ifdef BONUS_MENU
+            #ifdef BONUS_PAGE
             gMenuStruct->isBonusPage = FALSE;
             gMenuStruct->bonusCursorPos = 0;
             gMenuStruct->bonusFirstVisibleItem = 0;
@@ -320,13 +320,13 @@ static void UpdateMenuSelection(bool8 movingDown)
     u8 *selectedItem;
     u8 itemCount;
 
-    #ifdef BONUS_MENU
+    #ifdef BONUS_PAGE
     if (gMenuStruct->isBonusPage)
     {
         cursorPos = &gMenuStruct->bonusCursorPos;
         firstVisibleItem = &gMenuStruct->bonusFirstVisibleItem;
         selectedItem = &gMenuStruct->bonusSelectedItem;
-        itemCount = BONUS_MENU_COUNT;
+        itemCount = BONUS_PAGE_COUNT;
     }
     else
     #endif
@@ -390,7 +390,7 @@ static void Task_ImageWaitForKeyPress(u8 taskId)
     {
         UpdateMenuSelection(TRUE);
     }
-    #ifdef BONUS_MENU
+    #ifdef BONUS_PAGE
     else if (gMain.newKeys & (L_BUTTON | R_BUTTON))
     {
         bool8 nextIsBonusPage = (gMain.newKeys & R_BUTTON) ? TRUE : FALSE;
@@ -415,7 +415,7 @@ static void Task_ImageFadeOut(u8 taskId)
         tilemapbuffer = NULL;
 
         ScriptContext2_Disable();
-        gMain.state = 0;
+        gMain.state = MENU_STATE_INIT;
 
         PlaySE(SE_PC_OFF);
         SetMainCallback2(CB2_ReturnToFieldContinueScript);
@@ -427,13 +427,13 @@ static void Task_ImageFadeOut(u8 taskId)
 static void PrintMenuTitle(void)
 {
     const u8 *titleText = gText_MenuTitle;
-    #ifdef BONUS_MENU
+    #ifdef BONUS_PAGE
     if (gMenuStruct->isBonusPage)
         titleText = gText_MenuBonusTitle;
     #endif
 
     CleanWindow(WINDOW_TITLE);
-    WindowPrint(WINDOW_TITLE, FONT_SIZE, 0, 0, &sWhiteText, 0, titleText);
+    WindowPrint(WINDOW_TITLE, FONT_SIZE, 0, 0, COLOR_MENU_TITLE, 0, titleText);
     CommitWindow(WINDOW_TITLE);
 }
 
@@ -446,14 +446,14 @@ static void PrintMenuItems(void)
     u8 selectedItem;
     u8 itemCount;
 
-    #ifdef BONUS_MENU
+    #ifdef BONUS_PAGE
     if (gMenuStruct->isBonusPage)
     {
         items = MenuBonusItems;
         firstVisibleItem = gMenuStruct->bonusFirstVisibleItem;
         cursorPos = gMenuStruct->bonusCursorPos;
         selectedItem = gMenuStruct->bonusSelectedItem;
-        itemCount = BONUS_MENU_COUNT;
+        itemCount = BONUS_PAGE_COUNT;
     }
     else
     #endif
@@ -478,12 +478,12 @@ static void PrintMenuItems(void)
         {
             StringCopy(itemText, (const u8[]){CHAR_ARROW_RIGHT, EOS});
             StringAppend(itemText, items[item]);
-            WindowPrint(WINDOW_ITEMS, FONT_SIZE, 0, i * 16, &sWhiteText, 0, itemText);
+            WindowPrint(WINDOW_ITEMS, FONT_SIZE, 0, i * 16, COLOR_MENU_SELECTED_ITEM, 0, itemText);
         }
         else
         {
             StringCopy(itemText, items[item]);
-            WindowPrint(WINDOW_ITEMS, FONT_SIZE, 4, i * 16, &sBlackText, 0, itemText);
+            WindowPrint(WINDOW_ITEMS, FONT_SIZE, 4, i * 16, COLOR_MENU_ITEM, 0, itemText);
         }
     }
 
@@ -497,30 +497,30 @@ static void PrintMenuItemDescription(void)
 
     CleanWindow(WINDOW_DESCRIPTION);
 
-    #ifdef BONUS_MENU
+    #ifdef BONUS_PAGE
     if (gMenuStruct->isBonusPage)
     {
         selectedItem = gMenuStruct->bonusSelectedItem;
-        WindowPrint(WINDOW_DESCRIPTION, FONT_SIZE, 0, 0, &sWhiteText, 0, MenuBonusItemDescriptions[selectedItem]);
+        WindowPrint(WINDOW_DESCRIPTION, FONT_SIZE, 0, 0, COLOR_DESCRIPTION, 0, MenuBonusItemDescriptions[selectedItem]);
     }
     else
     #endif
     {
         selectedItem = gMenuStruct->selectedItem;
-        WindowPrint(WINDOW_DESCRIPTION, FONT_SIZE, 0, 0, &sWhiteText, 0, MenuItemDescriptions[selectedItem]);
+        WindowPrint(WINDOW_DESCRIPTION, FONT_SIZE, 0, 0, COLOR_DESCRIPTION, 0, MenuItemDescriptions[selectedItem]);
     }
     CommitWindow(WINDOW_DESCRIPTION);
 }
 
 // Print the next/previous page text to the screen
-#ifdef BONUS_MENU
+#ifdef BONUS_PAGE
 static void PrintNextPreviousPageText(void)
 {
     CleanWindow(WINDOW_NEXT_PREVIOUS_PAGE_TEXT);
     if (gMenuStruct->isBonusPage)
-        WindowPrint(WINDOW_NEXT_PREVIOUS_PAGE_TEXT, FONT_SIZE - 1, 0, 0, &sBlackText, 0, gText_MenuBonusPreviousPageL);
+        WindowPrint(WINDOW_NEXT_PREVIOUS_PAGE_TEXT, FONT_SIZE_SMALL, 0, 0, COLOR_PREVIOUS_NEXT, 0, gText_MenuBonusPreviousPageL);
     else
-        WindowPrint(WINDOW_NEXT_PREVIOUS_PAGE_TEXT, FONT_SIZE - 1, 0, 0, &sBlackText, 0, gText_MenuBonusNextPageR);
+        WindowPrint(WINDOW_NEXT_PREVIOUS_PAGE_TEXT, FONT_SIZE_SMALL, 0, 0, COLOR_PREVIOUS_NEXT, 0, gText_MenuBonusNextPageR);
     CommitWindow(WINDOW_NEXT_PREVIOUS_PAGE_TEXT);
 }
 #endif
@@ -528,6 +528,7 @@ static void PrintNextPreviousPageText(void)
 // Print the menu GUI text to the screen
 static void PrintMenuGUI(void)
 {
+    // Prevent tilemap glitches
     CleanWindows();
     CommitWindows();
 
@@ -535,7 +536,7 @@ static void PrintMenuGUI(void)
     PrintMenuItems();
     PrintMenuItemDescription();
 
-    #ifdef BONUS_MENU
+    #ifdef BONUS_PAGE
     PrintNextPreviousPageText();
     #endif
 }
@@ -543,6 +544,6 @@ static void PrintMenuGUI(void)
 void ShowImage(void)
 {
     ScriptContext2_Enable();
-    gMain.state = 0;
+    gMain.state = MENU_STATE_INIT;
     SetMainCallback2(CB2_FullImage);
 }

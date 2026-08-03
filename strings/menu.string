@@ -1,73 +1,74 @@
 #include "./include/new/show_menu.h"
 
 #org @gText_MenuTitle
-Custom Menu
+Tools
 
-// Menu Items
+// Main Menu Items
 #org @gText_MenuItem_1
-Menu Item 1
+Trainer Card
 
 #org @gText_MenuItem_2
-Menu Item 2
+Pok\edex
 
 #org @gText_MenuItem_3
-Menu Item 3
+Music Player
 
 #org @gText_MenuItem_4
-Menu Item 4
+Achievements
 
 #org @gText_MenuItem_5
-Menu Item 5
+Berry Guide
 
 #org @gText_MenuItem_6
-Menu Item 6
+Map Viewer
 
 #org @gText_MenuItem_7
-Menu Item 7
+Move Tutor
 
 #org @gText_MenuItem_8
-Menu Item 8
+Mystery Gift
 
 #org @gText_MenuItem_9
-Menu Item 9
+Hall of Fame
 
 #org @gText_MenuItem_10
-Menu Item 10
+Settings
 
 // Menu Item Descriptions
 #org @gText_MenuItemDesc_1
-Description of Menu Item 1
+View your Trainer information.
 
 #org @gText_MenuItemDesc_2
-Description of Menu Item 2
+Browse Pok\emon you've encountered.
 
 #org @gText_MenuItemDesc_3
-Description of Menu Item 3
+Listen to music from your adventure.
 
 #org @gText_MenuItemDesc_4
-Description of Menu Item 4
+Review your completed challenges.
 
 #org @gText_MenuItemDesc_5
-Description of Menu Item 5
+Learn about Berries and their uses.
 
 #org @gText_MenuItemDesc_6
-Description of Menu Item 6
+View maps of visited locations.
 
 #org @gText_MenuItemDesc_7
-Description of Menu Item 7
+Relearn forgotten moves.
 
 #org @gText_MenuItemDesc_8
-Description of Menu Item 8
+Receive special event gifts.
 
 #org @gText_MenuItemDesc_9
-Description of Menu Item 9
+See your championship records.
 
 #org @gText_MenuItemDesc_10
-Description of Menu Item 10
+Adjust gameplay preferences.
 
-#ifdef BONUS_MENU
+#ifdef BONUS_PAGE
+
 #org @gText_MenuBonusTitle
-Bonus Page
+Extras
 
 #org @gText_MenuBonusNextPageR
 Next Page\n[R_BUTTON]
@@ -77,57 +78,58 @@ Previous\nPage [L_BUTTON]
 
 // Bonus Menu Items
 #org @gText_MenuBonusItem_1
-Bonus Item 1
+Credits
 
 #org @gText_MenuBonusItem_2
-Bonus Item 2
+Sound Test
 
 #org @gText_MenuBonusItem_3
-Bonus Item 3
+Artwork
 
 #org @gText_MenuBonusItem_4
-Bonus Item 4
+Concept Art
 
 #org @gText_MenuBonusItem_5
-Bonus Item 5
+Best Times
 
 #org @gText_MenuBonusItem_6
-Bonus Item 6
+Statistics
 
 #org @gText_MenuBonusItem_7
-Bonus Item 7
+Battle Records
 
 #org @gText_MenuBonusItem_8
-Bonus Item 8
+Debug Room
 
 #org @gText_MenuBonusItem_9
-Bonus Item 9
+Coming Soon
 
 // Bonus Menu Descriptions
 #org @gText_MenuBonusItemDescription_1
-Bonus Item 1 Description
+Meet the people behind the project.
 
 #org @gText_MenuBonusItemDescription_2
-Bonus Item 2 Description
+Play any unlocked background music.
 
 #org @gText_MenuBonusItemDescription_3
-Bonus Item 3 Description
+View official game artwork.
 
 #org @gText_MenuBonusItemDescription_4
-Bonus Item 4 Description
+Browse early design concepts.
 
 #org @gText_MenuBonusItemDescription_5
-Bonus Item 5 Description
+View your fastest completion times.
 
 #org @gText_MenuBonusItemDescription_6
-Bonus Item 6 Description
+Check detailed gameplay statistics.
 
 #org @gText_MenuBonusItemDescription_7
-Bonus Item 7 Description
+Review battle performance.
 
 #org @gText_MenuBonusItemDescription_8
-Bonus Item 8 Description
+Developer testing tools.
 
 #org @gText_MenuBonusItemDescription_9
-Bonus Item 9 Description
+More features will appear here.
+
 #endif
