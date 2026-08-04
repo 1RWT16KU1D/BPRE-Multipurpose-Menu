@@ -30,7 +30,7 @@ EventScript_PalletTown_FatGuy:
     setflag 0x1618
     setflag 0x1619
 
-    msgbox gText_PalletTown_FatGuy_WillShowImage MSG_NORMAL
+    msgbox gText_PalletTown_FatGuy_WillShowMenu MSG_NORMAL
     callasm ShowImage
     waitstate
     release

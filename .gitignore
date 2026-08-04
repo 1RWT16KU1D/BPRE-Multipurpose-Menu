@@ -1,8 +1,9 @@
 *.ini
 *.gba
-*.png
+/test-*.png
 build/*
-graphics/**/*.h
+graphics/Menu_BG.h
+graphics/Palette_Only/Menu_BG_Bonus.h
 *.sgm
 *.dmp
 *.bak
