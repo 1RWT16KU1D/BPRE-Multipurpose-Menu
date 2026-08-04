@@ -406,6 +406,18 @@ static void Task_ImageWaitForKeyPress(u8 taskId)
         if (gMenuStruct->isPlaying)
             return;
 
+        #ifdef BONUS_PAGE
+        if (gMenuStruct->isBonusPage)
+        {
+            if (!gMenuStruct->bonusMenuItemFlags[gMenuStruct->bonusSelectedItem])
+                return;
+        }
+        else
+        #endif
+        {
+            if (!gMenuStruct->menuItemFlags[gMenuStruct->selectedItem])
+                return;
+        }
         gMenuStruct->isPlaying = TRUE;
 
         u16 songNum;

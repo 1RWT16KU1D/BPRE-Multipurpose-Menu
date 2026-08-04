@@ -42,34 +42,34 @@ Song 10
 
 // Menu Item Descriptions
 #org @gText_MenuItemDesc_1
-View your Trainer information.
+Song Description 1
 
 #org @gText_MenuItemDesc_2
-Browse Pok\emon you've encountered.
+Song Description 2
 
 #org @gText_MenuItemDesc_3
-Listen to music from your adventure.
+Song Description 3
 
 #org @gText_MenuItemDesc_4
-Review your completed challenges.
+Song Description 4
 
 #org @gText_MenuItemDesc_5
-Learn about Berries and their uses.
+Song Description 5
 
 #org @gText_MenuItemDesc_6
-View maps of visited locations.
+Song Description 6
 
 #org @gText_MenuItemDesc_7
-Relearn forgotten moves.
+Song Description 7
 
 #org @gText_MenuItemDesc_8
-Receive special event gifts.
+Song Description 8
 
 #org @gText_MenuItemDesc_9
-See your championship records.
+Song Description 9
 
 #org @gText_MenuItemDesc_10
-Adjust gameplay preferences.
+Song Description 10
 
 #ifdef BONUS_PAGE
 
@@ -84,58 +84,58 @@ Previous\nPage [L_BUTTON]
 
 // Bonus Menu Items
 #org @gText_MenuBonusItem_1
-Credits
+Bonus Song 1
 
 #org @gText_MenuBonusItem_2
-Sound Test
+Bonus Song 2
 
 #org @gText_MenuBonusItem_3
-Artwork
+Bonus Song 3
 
 #org @gText_MenuBonusItem_4
-Concept Art
+Bonus Song 4
 
 #org @gText_MenuBonusItem_5
-Best Times
+Bonus Song 5
 
 #org @gText_MenuBonusItem_6
-Statistics
+Bonus Song 6
 
 #org @gText_MenuBonusItem_7
-Battle Records
+Bonus Song 7
 
 #org @gText_MenuBonusItem_8
-Debug Room
+Bonus Song 8
 
 #org @gText_MenuBonusItem_9
-Coming Soon
+Bonus Song 9
 
 // Bonus Menu Descriptions
 #org @gText_MenuBonusItemDescription_1
-Meet the people behind the project.
+Bonus Song Description 1
 
 #org @gText_MenuBonusItemDescription_2
-Play any unlocked background music.
+Bonus Song Description 2
 
 #org @gText_MenuBonusItemDescription_3
-View official game artwork.
+Bonus Song Description 3
 
 #org @gText_MenuBonusItemDescription_4
-Browse early design concepts.
+Bonus Song Description 4
 
 #org @gText_MenuBonusItemDescription_5
-View your fastest completion times.
+Bonus Song Description 5
 
 #org @gText_MenuBonusItemDescription_6
-Check detailed gameplay statistics.
+Bonus Song Description 6
 
 #org @gText_MenuBonusItemDescription_7
-Review battle performance.
+Bonus Song Description 7
 
 #org @gText_MenuBonusItemDescription_8
-Developer testing tools.
+Bonus Song Description 8
 
 #org @gText_MenuBonusItemDescription_9
-More features will appear here.
+Bonus Song Description 9
 
 #endif
