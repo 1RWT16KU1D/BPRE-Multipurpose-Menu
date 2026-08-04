@@ -3,39 +3,42 @@
 #org @gText_ItemDescriptionNotAvailable
 Description not available[.]
 
+#org @gText_NowPlayingSong
+Now playing:\n
+
 #org @gText_MenuTitle
-Tools
+Audio Player
 
 // Main Menu Items
 #org @gText_MenuItem_1
-Trainer Card
+Pallet Town
 
 #org @gText_MenuItem_2
-Pok\edex
+Pewter City
 
 #org @gText_MenuItem_3
-Music Player
+Lavender Town
 
 #org @gText_MenuItem_4
-Achievements
+Song 4
 
 #org @gText_MenuItem_5
-Berry Guide
+Song 5
 
 #org @gText_MenuItem_6
-Map Viewer
+Song 6
 
 #org @gText_MenuItem_7
-Move Tutor
+Song 7
 
 #org @gText_MenuItem_8
-Mystery Gift
+Song 8
 
 #org @gText_MenuItem_9
-Hall of Fame
+Song 9
 
 #org @gText_MenuItem_10
-Settings
+Song 10
 
 // Menu Item Descriptions
 #org @gText_MenuItemDesc_1
@@ -71,7 +74,7 @@ Adjust gameplay preferences.
 #ifdef BONUS_PAGE
 
 #org @gText_MenuBonusTitle
-Extras
+Bonus Tracks
 
 #org @gText_MenuBonusNextPageR
 Next Page\n[R_BUTTON]

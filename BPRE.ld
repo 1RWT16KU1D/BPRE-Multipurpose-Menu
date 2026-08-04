@@ -1899,3 +1899,5 @@ SetMonIconTransparency = 0x808cfc4 | 1;
 gText_TMCase = 0x84166d3;
 SetPartyHPBarSprite = 0x8097414 | 1;
 SetBGMVolume_SuppressHelpSystemReduction = 0x8072474 | 1;
+FadeOutAndPlayNewMapMusic = 0x08071AEC | 1;
+InitMapMusic = 0x08071938 | 1;

@@ -49,7 +49,7 @@ static const struct TextColor sGrayText =
 #define COLOR(color) &s##color##Text
 
 /* ========== Configurable Options ========== */
-#define BONUS_PAGE // Comment this out to disable the bonus menu page
+//#define BONUS_PAGE // Comment this out to disable the bonus menu page
 
 #define COLOR_MENU_TITLE COLOR(White) // Title text color
 #define COLOR_DESCRIPTION COLOR(White) // Description text color
@@ -74,6 +74,8 @@ struct MenuStruct
     u8 firstVisibleItem;
     u8 selectedItem;
     bool8 *menuItemFlags;
+    bool8 isPlaying;
+    u16 mapMusic;
 
     #ifdef BONUS_PAGE
     bool8 isBonusPage;
@@ -128,6 +130,7 @@ extern const u8 Menu_BG_BonusPal[];
 
 /* ========== String Declarations ========== */
 extern const u8 gText_ItemDescriptionNotAvailable[];
+extern const u8 gText_NowPlayingSong[];
 
 // Title
 extern const u8 gText_MenuTitle[];
@@ -198,6 +201,20 @@ const u16 MenuItemUnlockFlags[] =
     0x160A
 };
 
+const u16 MenuItemSongs[] =
+{
+    300,
+    314,
+    280,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+};
+
 #ifdef BONUS_PAGE
 // Bonus Menu Title
 extern const u8 gText_MenuBonusTitle[];
@@ -265,6 +282,10 @@ const u16 MenuBonusItemUnlockFlags[] =
     0x1617,
     0x1618,
     0x1619
+};
+
+const u16 MenuBonusItemSongs[] =
+{
 };
 #endif
 

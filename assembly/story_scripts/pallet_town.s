@@ -9,10 +9,10 @@ EventScript_PalletTown_FatGuy:
     lock
     faceplayer
 
-    @setflag 0x1601
+    setflag 0x1601
     setflag 0x1602
     setflag 0x1603
-    setflag 0x1604
+    @setflag 0x1604
     setflag 0x1605
     @setflag 0x1606
     setflag 0x1607

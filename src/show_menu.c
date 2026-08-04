@@ -98,7 +98,7 @@ static const struct WindowTemplate unusedArg sMenuWindowTemplates[WINDOW_COUNT +
 	[WINDOW_TITLE] =
 	{
 		.bg = BG_TEXT,
-		.tilemapLeft = 22,
+		.tilemapLeft = 21,
 		.tilemapTop = 1,
 		.width = 9,
 		.height = 2,
@@ -241,6 +241,7 @@ static void CB2_FullImage(void)
             gMenuStruct->selectedItem = 0;
 
             gMenuStruct->menuItemFlags = Calloc(MENU_ITEM_COUNT * sizeof(bool8));
+            gMenuStruct->mapMusic = GetCurrentMapMusic();
 
             #ifdef BONUS_PAGE
             gMenuStruct->isBonusPage = FALSE;
@@ -400,22 +401,56 @@ static void UpdateMenuSelection(bool8 movingDown)
 
 static void Task_ImageWaitForKeyPress(u8 taskId)
 {
-    if (gMain.newKeys & B_BUTTON)
+    if (gMain.newKeys & A_BUTTON)
     {
-        BeginNormalPaletteFade(0xFFFFFFFF, 0, 0, 16, RGB_BLACK);
-        gTasks[taskId].func = Task_ImageFadeOut;
+        if (gMenuStruct->isPlaying)
+            return;
+
+        gMenuStruct->isPlaying = TRUE;
+
+        u16 songNum;
+        #ifdef BONUS_PAGE
+        if (gMenuStruct->isBonusPage)
+            songNum = MenuBonusItemSongs[gMenuStruct->bonusSelectedItem];
+        else
+        #endif
+            songNum = MenuItemSongs[gMenuStruct->selectedItem];
+
+        PlaySE(SE_SELECT);
+        FadeOutAndPlayNewMapMusic(songNum, 8);
+        PrintMenuItemDescription();
+    }
+    else if (gMain.newKeys & B_BUTTON)
+    {
+        if (gMenuStruct->isPlaying)
+        {
+            gMenuStruct->isPlaying = FALSE;
+            FadeOutAndPlayNewMapMusic(gMenuStruct->mapMusic, 8);
+            PrintMenuItemDescription();
+        }
+        else
+        {
+            BeginNormalPaletteFade(0xFFFFFFFF, 0, 0, 16, RGB_BLACK);
+            gTasks[taskId].func = Task_ImageFadeOut;
+        }
     }
     else if (JOY_NEW_AND_REPEATED(DPAD_UP))
     {
+        if (gMenuStruct->isPlaying)
+            return;
         UpdateMenuSelection(FALSE);
     }
     else if (JOY_NEW_AND_REPEATED(DPAD_DOWN))
     {
+        if (gMenuStruct->isPlaying)
+            return;
         UpdateMenuSelection(TRUE);
     }
     #ifdef BONUS_PAGE
     else if (gMain.newKeys & (L_BUTTON | R_BUTTON))
     {
+        if (gMenuStruct->isPlaying)
+            return;
         bool8 nextIsBonusPage = (gMain.newKeys & R_BUTTON) ? TRUE : FALSE;
         if (gMenuStruct->isBonusPage != nextIsBonusPage)
         {
@@ -456,7 +491,7 @@ static void PrintMenuTitle(void)
     #endif
 
     CleanWindow(WINDOW_TITLE);
-    WindowPrint(WINDOW_TITLE, FONT_SIZE, 0, 0, COLOR_MENU_TITLE, 0, titleText);
+    WindowPrint(WINDOW_TITLE, FONT_SIZE, 3, 0, COLOR_MENU_TITLE, 0, titleText);
     CommitWindow(WINDOW_TITLE);
 }
 
@@ -531,6 +566,25 @@ static void PrintMenuItemDescription(void)
     u8 selectedItem;
 
     CleanWindow(WINDOW_DESCRIPTION);
+
+    if (gMenuStruct->isPlaying)
+    {
+        u8 nowPlayingText[32];
+
+        #ifdef BONUS_PAGE
+        if (gMenuStruct->isBonusPage)
+            StringCopy(gStringVar4, MenuBonusItems[gMenuStruct->bonusSelectedItem]);
+        else
+        #endif
+            StringCopy(gStringVar4, MenuItems[gMenuStruct->selectedItem]);
+
+        StringCopy(nowPlayingText, gText_NowPlayingSong);
+        StringAppend(nowPlayingText, gStringVar4);
+
+        WindowPrint(WINDOW_DESCRIPTION, FONT_SIZE, 0, 0, COLOR_DESCRIPTION, 0, nowPlayingText);
+        CommitWindow(WINDOW_DESCRIPTION);
+        return;
+    }
 
     #ifdef BONUS_PAGE
     if (gMenuStruct->isBonusPage)
