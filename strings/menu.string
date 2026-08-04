@@ -1,5 +1,8 @@
 #include "./include/new/show_menu.h"
 
+#org @gText_ItemDescriptionNotAvailable
+Description not available[.]
+
 #org @gText_MenuTitle
 Tools
 

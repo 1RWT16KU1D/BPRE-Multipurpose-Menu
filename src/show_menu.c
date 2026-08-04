@@ -30,6 +30,11 @@
 #define tilemapbuffer (*((u8**) 0x203E038)) 
 #define BG_MAP_BYTES 0x800
 
+bool8 *menuUnlockFlags;
+#ifdef BONUS_PAGE
+bool8 *bonusMenuUnlockFlags;
+#endif
+
 struct ImageData
 {
     const u8 *tiles;
@@ -158,6 +163,7 @@ static void CommitWindow(u8 windowId);
 static void CleanWindows(void);
 static void CommitWindows(void);
 
+static void InitMenuFlags(void);
 static void Task_ImageFadeIn(u8 taskId);
 static void Task_ImageWaitForKeyPress(u8 taskId);
 static void Task_ImageFadeOut(u8 taskId);
@@ -192,6 +198,18 @@ static void CommitWindows(void)
 		CommitWindow(i);
 }
 
+static void InitMenuFlags(void)
+{
+    for (u8 i = 0; i < MENU_ITEM_COUNT; ++i)
+        gMenuStruct->menuItemFlags[i] = FlagGet(MenuItemUnlockFlags[i]);
+
+    #ifdef BONUS_PAGE
+    for (u8 i = 0; i < BONUS_PAGE_COUNT; ++i)
+        gMenuStruct->bonusMenuItemFlags[i] = FlagGet(MenuBonusItemUnlockFlags[i]);
+    #endif
+
+}
+
 static void LoadMenuBG(void)
 {
     const struct ImageData *img = &MenuBGData;
@@ -222,13 +240,18 @@ static void CB2_FullImage(void)
             gMenuStruct->firstVisibleItem = 0;
             gMenuStruct->selectedItem = 0;
 
+            gMenuStruct->menuItemFlags = Calloc(MENU_ITEM_COUNT * sizeof(bool8));
+
             #ifdef BONUS_PAGE
             gMenuStruct->isBonusPage = FALSE;
             gMenuStruct->bonusCursorPos = 0;
             gMenuStruct->bonusFirstVisibleItem = 0;
             gMenuStruct->bonusSelectedItem = 0;
+
+            gMenuStruct->bonusMenuItemFlags = Calloc(BONUS_PAGE_COUNT * sizeof(bool8));
             #endif
 
+            InitMenuFlags();
             SetBGMVolume_SuppressHelpSystemReduction(160);
             SetVBlankCallback(NULL);
 
@@ -445,6 +468,7 @@ static void PrintMenuItems(void)
     u8 cursorPos;
     u8 selectedItem;
     u8 itemCount;
+    bool8 *unlockFlags;
 
     #ifdef BONUS_PAGE
     if (gMenuStruct->isBonusPage)
@@ -454,6 +478,7 @@ static void PrintMenuItems(void)
         cursorPos = gMenuStruct->bonusCursorPos;
         selectedItem = gMenuStruct->bonusSelectedItem;
         itemCount = BONUS_PAGE_COUNT;
+        unlockFlags = gMenuStruct->bonusMenuItemFlags;
     }
     else
     #endif
@@ -462,6 +487,8 @@ static void PrintMenuItems(void)
         cursorPos = gMenuStruct->cursorPos;
         selectedItem = gMenuStruct->selectedItem;
         itemCount = MENU_ITEM_COUNT;
+        unlockFlags = gMenuStruct->menuItemFlags;
+
     }
 
     CleanWindow(WINDOW_ITEMS);
@@ -476,13 +503,21 @@ static void PrintMenuItems(void)
 
         if (i == cursorPos && item == selectedItem)
         {
-            StringCopy(itemText, (const u8[]){CHAR_ARROW_RIGHT, EOS});
-            StringAppend(itemText, items[item]);
-            WindowPrint(WINDOW_ITEMS, FONT_SIZE, 0, i * 16, COLOR_MENU_SELECTED_ITEM, 0, itemText);
+            if (unlockFlags[item])
+            {
+                StringCopy(itemText, (const u8[]){CHAR_ARROW_RIGHT, EOS});
+                StringAppend(itemText, items[item]);
+            }
+            else
+                StringCopy(itemText, (const u8[]){CHAR_HYPHEN, CHAR_HYPHEN, EOS});
+            WindowPrint(WINDOW_ITEMS, FONT_SIZE, 4, i * 16, COLOR_MENU_SELECTED_ITEM, 0, itemText);
         }
         else
         {
-            StringCopy(itemText, items[item]);
+            if (unlockFlags[item])
+                StringCopy(itemText, items[item]);
+            else
+                StringCopy(itemText, (const u8[]){CHAR_HYPHEN, CHAR_HYPHEN, EOS});
             WindowPrint(WINDOW_ITEMS, FONT_SIZE, 4, i * 16, COLOR_MENU_ITEM, 0, itemText);
         }
     }
@@ -501,13 +536,19 @@ static void PrintMenuItemDescription(void)
     if (gMenuStruct->isBonusPage)
     {
         selectedItem = gMenuStruct->bonusSelectedItem;
-        WindowPrint(WINDOW_DESCRIPTION, FONT_SIZE, 0, 0, COLOR_DESCRIPTION, 0, MenuBonusItemDescriptions[selectedItem]);
+        if (gMenuStruct->bonusMenuItemFlags[selectedItem])
+            WindowPrint(WINDOW_DESCRIPTION, FONT_SIZE, 0, 0, COLOR_DESCRIPTION, 0, MenuBonusItemDescriptions[selectedItem]);
+        else
+            WindowPrint(WINDOW_DESCRIPTION, FONT_SIZE, 0, 0, COLOR_DESCRIPTION, 0, gText_ItemDescriptionNotAvailable);
     }
     else
     #endif
     {
         selectedItem = gMenuStruct->selectedItem;
-        WindowPrint(WINDOW_DESCRIPTION, FONT_SIZE, 0, 0, COLOR_DESCRIPTION, 0, MenuItemDescriptions[selectedItem]);
+        if (gMenuStruct->menuItemFlags[selectedItem])
+            WindowPrint(WINDOW_DESCRIPTION, FONT_SIZE, 0, 0, COLOR_DESCRIPTION, 0, MenuItemDescriptions[selectedItem]);
+        else
+            WindowPrint(WINDOW_DESCRIPTION, FONT_SIZE, 0, 0, COLOR_DESCRIPTION, 0, gText_ItemDescriptionNotAvailable);
     }
     CommitWindow(WINDOW_DESCRIPTION);
 }

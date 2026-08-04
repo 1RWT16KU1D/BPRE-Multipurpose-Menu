@@ -46,16 +46,16 @@ static const struct TextColor sGrayText =
     .fgColor = TEXT_COLOR_LIGHT_GREY,
     .shadowColor = TEXT_COLOR_DARK_GREY
 };
-#define COLOR(color) &s$##color##Text
+#define COLOR(color) &s##color##Text
 
-// Configurable options
+/* ========== Configurable Options ========== */
 #define BONUS_PAGE // Comment this out to disable the bonus menu page
 
 #define COLOR_MENU_TITLE COLOR(White) // Title text color
-#define COLOR_DESCRIPTION COLOR(Gray) // Description text color
+#define COLOR_DESCRIPTION COLOR(White) // Description text color
 #define COLOR_MENU_ITEM COLOR(Black) // Menu item list color
 #define COLOR_MENU_SELECTED_ITEM COLOR(White) // Selected menu item text color (including arrow)
-#define COLOR_PREVIOUS_NEXT COLOR(Green) // Previous/Next page text color
+#define COLOR_PREVIOUS_NEXT COLOR(White) // Previous/Next page text color
 
 
 // Don't touch!
@@ -73,12 +73,14 @@ struct MenuStruct
     u8 cursorPos;
     u8 firstVisibleItem;
     u8 selectedItem;
+    bool8 *menuItemFlags;
 
     #ifdef BONUS_PAGE
     bool8 isBonusPage;
     u8 bonusCursorPos;
     u8 bonusFirstVisibleItem;
     u8 bonusSelectedItem;
+    bool8 *bonusMenuItemFlags;
     #endif
 };
 
@@ -125,6 +127,7 @@ extern const u8 Menu_BG_BonusPal[];
 #endif
 
 /* ========== String Declarations ========== */
+extern const u8 gText_ItemDescriptionNotAvailable[];
 
 // Title
 extern const u8 gText_MenuTitle[];
@@ -181,6 +184,20 @@ const u8 *const MenuItemDescriptions[] =
     gText_MenuItemDesc_10,
 };
 
+const u16 MenuItemUnlockFlags[] =
+{
+    0x1601,
+    0x1602,
+    0x1603,
+    0x1604,
+    0x1605,
+    0x1606,
+    0x1607,
+    0x1608,
+    0x1609,
+    0x160A
+};
+
 #ifdef BONUS_PAGE
 // Bonus Menu Title
 extern const u8 gText_MenuBonusTitle[];
@@ -235,6 +252,19 @@ const u8 *const MenuBonusItemDescriptions[] =
     gText_MenuBonusItemDescription_7,
     gText_MenuBonusItemDescription_8,
     gText_MenuBonusItemDescription_9,
+};
+
+const u16 MenuBonusItemUnlockFlags[] =
+{
+    0x1611,
+    0x1612,
+    0x1613,
+    0x1614,
+    0x1615,
+    0x1616,
+    0x1617,
+    0x1618,
+    0x1619
 };
 #endif
 
