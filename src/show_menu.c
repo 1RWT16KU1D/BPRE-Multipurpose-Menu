@@ -252,6 +252,10 @@ static void CB2_FullImage(void)
             gMenuStruct->bonusMenuItemFlags = Calloc(BONUS_PAGE_COUNT * sizeof(bool8));
             #endif
 
+            #ifdef KEEP_PLAYING_MUSIC
+            gMenuStruct->currentSong = 0xFFFF; // Set to an invalid song number to prevent the "Now Playing" text from showing up when the menu is first opened
+            #endif
+
             InitMenuFlags();
             SetBGMVolume_SuppressHelpSystemReduction(160);
             SetVBlankCallback(NULL);
@@ -403,6 +407,7 @@ static void Task_ImageWaitForKeyPress(u8 taskId)
 {
     if (gMain.newKeys & A_BUTTON)
     {
+        #ifndef KEEP_PLAYING_MUSIC
         if (gMenuStruct->isPlaying)
             return;
 
@@ -418,6 +423,7 @@ static void Task_ImageWaitForKeyPress(u8 taskId)
             if (!gMenuStruct->menuItemFlags[gMenuStruct->selectedItem])
                 return;
         }
+        #endif
         gMenuStruct->isPlaying = TRUE;
 
         u16 songNum;
@@ -430,17 +436,26 @@ static void Task_ImageWaitForKeyPress(u8 taskId)
 
         PlaySE(SE_SELECT);
         FadeOutAndPlayNewMapMusic(songNum, 8);
+        #ifdef KEEP_PLAYING_MUSIC
+        gMenuStruct->currentSong = songNum;
+        #endif
         PrintMenuItemDescription();
     }
     else if (gMain.newKeys & B_BUTTON)
     {
+        #ifndef KEEP_PLAYING_MUSIC
         if (gMenuStruct->isPlaying)
+        #endif
         {
+            #ifndef KEEP_PLAYING_MUSIC
             gMenuStruct->isPlaying = FALSE;
             FadeOutAndPlayNewMapMusic(gMenuStruct->mapMusic, 8);
+            #endif
             PrintMenuItemDescription();
         }
+        #ifndef KEEP_PLAYING_MUSIC
         else
+        #endif
         {
             BeginNormalPaletteFade(0xFFFFFFFF, 0, 0, 16, RGB_BLACK);
             gTasks[taskId].func = Task_ImageFadeOut;
@@ -448,21 +463,27 @@ static void Task_ImageWaitForKeyPress(u8 taskId)
     }
     else if (JOY_NEW_AND_REPEATED(DPAD_UP))
     {
+        #ifndef KEEP_PLAYING_MUSIC
         if (gMenuStruct->isPlaying)
             return;
+        #endif
         UpdateMenuSelection(FALSE);
     }
     else if (JOY_NEW_AND_REPEATED(DPAD_DOWN))
     {
+        #ifndef KEEP_PLAYING_MUSIC
         if (gMenuStruct->isPlaying)
             return;
+        #endif
         UpdateMenuSelection(TRUE);
     }
     #ifdef BONUS_PAGE
     else if (gMain.newKeys & (L_BUTTON | R_BUTTON))
     {
+        #ifndef KEEP_PLAYING_MUSIC
         if (gMenuStruct->isPlaying)
             return;
+        #endif
         bool8 nextIsBonusPage = (gMain.newKeys & R_BUTTON) ? TRUE : FALSE;
         if (gMenuStruct->isBonusPage != nextIsBonusPage)
         {
@@ -488,6 +509,7 @@ static void Task_ImageFadeOut(u8 taskId)
         gMain.state = MENU_STATE_INIT;
 
         PlaySE(SE_PC_OFF);
+        BGMVolumeMax_EnableHelpSystemReduction();
         SetMainCallback2(CB2_ReturnToFieldContinueScript);
         DestroyTask(taskId);
     }
@@ -579,7 +601,11 @@ static void PrintMenuItemDescription(void)
 
     CleanWindow(WINDOW_DESCRIPTION);
 
-    if (gMenuStruct->isPlaying)
+    if ((gMenuStruct->isPlaying)
+    #ifdef KEEP_PLAYING_MUSIC
+    && (gMenuStruct->currentSong == MenuItemSongs[gMenuStruct->selectedItem])
+    #endif
+    )
     {
         u8 nowPlayingText[32];
 
