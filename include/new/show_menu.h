@@ -50,7 +50,7 @@ static const struct TextColor sGrayText =
 
 /* ========== Configurable Options ========== */
 #define BONUS_PAGE // Comment this out to disable the bonus menu page
-#define KEEP_PLAYING_MUSIC // Comment this out to stop the music when exiting the menu
+//#define KEEP_PLAYING_MUSIC // Comment this out to stop the music when exiting the menu
 
 #define COLOR_MENU_TITLE COLOR(White) // Title text color
 #define COLOR_DESCRIPTION COLOR(White) // Description text color

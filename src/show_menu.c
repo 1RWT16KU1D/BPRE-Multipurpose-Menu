@@ -30,6 +30,7 @@
 #define tilemapbuffer (*((u8**) 0x203E038)) 
 #define BG_MAP_BYTES 0x800
 
+// Will be stored somewhere separate in memory
 bool8 *menuUnlockFlags;
 #ifdef BONUS_PAGE
 bool8 *bonusMenuUnlockFlags;
@@ -448,8 +449,10 @@ static void Task_ImageWaitForKeyPress(u8 taskId)
         #endif
             songNum = MenuItemSongs[gMenuStruct->selectedItem];
 
+        #ifdef KEEP_PLAYING_MUSIC
         if (gMenuStruct->currentSong == songNum)
             return;
+        #endif
 
         PlaySE(SE_SELECT);
         FadeOutAndPlayNewMapMusic(songNum, 8);
@@ -621,8 +624,8 @@ static void PrintMenuItems(void)
 static void PrintMenuItemDescription(void)
 {
     u8 selectedItem;
-    const u8 * const *itemNames;
-    const u8 * const *itemDescriptions;
+    const u8 *const *itemNames;
+    const u8 *const *itemDescriptions;
     const bool8 *itemFlags;
 
     CleanWindow(WINDOW_DESCRIPTION);
@@ -644,28 +647,35 @@ static void PrintMenuItemDescription(void)
         itemFlags = gMenuStruct->menuItemFlags;
     }
 
-    #ifdef KEEP_PLAYING_MUSIC
-    if (gMenuStruct->isPlaying
-        && gMenuStruct->currentSong == (
-    #ifdef BONUS_PAGE
-        gMenuStruct->isBonusPage ? MenuBonusItemSongs[selectedItem]
-        :
-    #endif
-        MenuItemSongs[selectedItem]))
+    if (gMenuStruct->isPlaying)
     {
+        #ifdef KEEP_PLAYING_MUSIC
+        bool8 showNowPlaying = FALSE;
+
+        #ifdef BONUS_PAGE
+        if (gMenuStruct->isBonusPage)
+            showNowPlaying = (gMenuStruct->currentSong == MenuBonusItemSongs[selectedItem]);
+        else
+        #endif
+            showNowPlaying = (gMenuStruct->currentSong == MenuItemSongs[selectedItem]);
+
+        if (!showNowPlaying)
+            goto PRINT_DESCRIPTION;
+        #endif
+
         u8 nowPlayingText[32];
 
-        StringCopy(gStringVar4, itemNames[selectedItem]);
-
         StringCopy(nowPlayingText, gText_NowPlayingSong);
-        StringAppend(nowPlayingText, gStringVar4);
+        StringAppend(nowPlayingText, itemNames[selectedItem]);
 
         WindowPrint(WINDOW_DESCRIPTION, FONT_SIZE, 0, 0, COLOR_DESCRIPTION, 0, nowPlayingText);
         CommitWindow(WINDOW_DESCRIPTION);
         return;
     }
-    #endif
 
+    #ifdef KEEP_PLAYING_MUSIC
+    PRINT_DESCRIPTION:
+    #endif
     WindowPrint(WINDOW_DESCRIPTION, FONT_SIZE, 0, 0, COLOR_DESCRIPTION, 0, itemFlags[selectedItem] ? itemDescriptions[selectedItem] : gText_ItemDescriptionNotAvailable);
     CommitWindow(WINDOW_DESCRIPTION);
 }
