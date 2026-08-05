@@ -407,6 +407,20 @@ static void Task_ImageWaitForKeyPress(u8 taskId)
 {
     if (gMain.newKeys & A_BUTTON)
     {
+        // Return early if not unlocked
+        #ifdef BONUS_PAGE
+        if (gMenuStruct->isBonusPage)
+        {
+            if (!gMenuStruct->bonusMenuItemFlags[gMenuStruct->bonusSelectedItem])
+                return;
+        }
+        else
+        #endif
+        {
+            if (!gMenuStruct->menuItemFlags[gMenuStruct->selectedItem])
+                return;
+        }
+
         #ifndef KEEP_PLAYING_MUSIC
         if (gMenuStruct->isPlaying)
             return;
@@ -433,6 +447,9 @@ static void Task_ImageWaitForKeyPress(u8 taskId)
         else
         #endif
             songNum = MenuItemSongs[gMenuStruct->selectedItem];
+
+        if (gMenuStruct->currentSong == songNum)
+            return;
 
         PlaySE(SE_SELECT);
         FadeOutAndPlayNewMapMusic(songNum, 8);
@@ -594,27 +611,44 @@ static void PrintMenuItems(void)
     CommitWindow(WINDOW_ITEMS);
 }
 
-// Print the description of the selected menu item to the screen
 static void PrintMenuItemDescription(void)
 {
     u8 selectedItem;
+    const u8 * const *itemNames;
+    const u8 * const *itemDescriptions;
+    const bool8 *itemFlags;
 
     CleanWindow(WINDOW_DESCRIPTION);
 
-    if ((gMenuStruct->isPlaying)
-    #ifdef KEEP_PLAYING_MUSIC
-    && (gMenuStruct->currentSong == MenuItemSongs[gMenuStruct->selectedItem])
+    #ifdef BONUS_PAGE
+    if (gMenuStruct->isBonusPage)
+    {
+        selectedItem = gMenuStruct->bonusSelectedItem;
+        itemNames = MenuBonusItems;
+        itemDescriptions = MenuBonusItemDescriptions;
+        itemFlags = gMenuStruct->bonusMenuItemFlags;
+    }
+    else
     #endif
-    )
+    {
+        selectedItem = gMenuStruct->selectedItem;
+        itemNames = MenuItems;
+        itemDescriptions = MenuItemDescriptions;
+        itemFlags = gMenuStruct->menuItemFlags;
+    }
+
+    #ifdef KEEP_PLAYING_MUSIC
+    if (gMenuStruct->isPlaying
+        && gMenuStruct->currentSong == (
+    #ifdef BONUS_PAGE
+        gMenuStruct->isBonusPage ? MenuBonusItemSongs[selectedItem]
+        :
+    #endif
+        MenuItemSongs[selectedItem]))
     {
         u8 nowPlayingText[32];
 
-        #ifdef BONUS_PAGE
-        if (gMenuStruct->isBonusPage)
-            StringCopy(gStringVar4, MenuBonusItems[gMenuStruct->bonusSelectedItem]);
-        else
-        #endif
-            StringCopy(gStringVar4, MenuItems[gMenuStruct->selectedItem]);
+        StringCopy(gStringVar4, itemNames[selectedItem]);
 
         StringCopy(nowPlayingText, gText_NowPlayingSong);
         StringAppend(nowPlayingText, gStringVar4);
@@ -623,25 +657,9 @@ static void PrintMenuItemDescription(void)
         CommitWindow(WINDOW_DESCRIPTION);
         return;
     }
-
-    #ifdef BONUS_PAGE
-    if (gMenuStruct->isBonusPage)
-    {
-        selectedItem = gMenuStruct->bonusSelectedItem;
-        if (gMenuStruct->bonusMenuItemFlags[selectedItem])
-            WindowPrint(WINDOW_DESCRIPTION, FONT_SIZE, 0, 0, COLOR_DESCRIPTION, 0, MenuBonusItemDescriptions[selectedItem]);
-        else
-            WindowPrint(WINDOW_DESCRIPTION, FONT_SIZE, 0, 0, COLOR_DESCRIPTION, 0, gText_ItemDescriptionNotAvailable);
-    }
-    else
     #endif
-    {
-        selectedItem = gMenuStruct->selectedItem;
-        if (gMenuStruct->menuItemFlags[selectedItem])
-            WindowPrint(WINDOW_DESCRIPTION, FONT_SIZE, 0, 0, COLOR_DESCRIPTION, 0, MenuItemDescriptions[selectedItem]);
-        else
-            WindowPrint(WINDOW_DESCRIPTION, FONT_SIZE, 0, 0, COLOR_DESCRIPTION, 0, gText_ItemDescriptionNotAvailable);
-    }
+
+    WindowPrint(WINDOW_DESCRIPTION, FONT_SIZE, 0, 0, COLOR_DESCRIPTION, 0, itemFlags[selectedItem] ? itemDescriptions[selectedItem] : gText_ItemDescriptionNotAvailable);
     CommitWindow(WINDOW_DESCRIPTION);
 }
 

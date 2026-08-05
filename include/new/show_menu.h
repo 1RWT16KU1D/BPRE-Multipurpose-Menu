@@ -49,7 +49,7 @@ static const struct TextColor sGrayText =
 #define COLOR(color) &s##color##Text
 
 /* ========== Configurable Options ========== */
-//#define BONUS_PAGE // Comment this out to disable the bonus menu page
+#define BONUS_PAGE // Comment this out to disable the bonus menu page
 #define KEEP_PLAYING_MUSIC // Comment this out to stop the music when exiting the menu
 
 #define COLOR_MENU_TITLE COLOR(White) // Title text color
@@ -290,6 +290,15 @@ const u16 MenuBonusItemUnlockFlags[] =
 
 const u16 MenuBonusItemSongs[] =
 {
+    274,
+    282,
+    305,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
 };
 #endif
 

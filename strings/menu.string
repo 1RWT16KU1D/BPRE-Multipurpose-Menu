@@ -84,13 +84,13 @@ Previous\nPage [L_BUTTON]
 
 // Bonus Menu Items
 #org @gText_MenuBonusItem_1
-Bonus Song 1
+Rocket Hideout
 
 #org @gText_MenuBonusItem_2
-Bonus Song 2
+Cycle Theme
 
 #org @gText_MenuBonusItem_3
-Bonus Song 3
+Surf Theme
 
 #org @gText_MenuBonusItem_4
 Bonus Song 4
