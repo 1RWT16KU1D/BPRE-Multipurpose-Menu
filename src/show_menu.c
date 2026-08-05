@@ -36,6 +36,25 @@ bool8 *menuUnlockFlags;
 bool8 *bonusMenuUnlockFlags;
 #endif
 
+static void InitStoredCurrentSong(void)
+{
+    if (VarGet(MENU_CURRENT_SONG_INIT_VAR) != MENU_CURRENT_SONG_INIT_MAGIC)
+    {
+        VarSet(MENU_CURRENT_SONG_VAR, MENU_CURRENT_SONG_INVALID);
+        VarSet(MENU_CURRENT_SONG_INIT_VAR, MENU_CURRENT_SONG_INIT_MAGIC);
+    }
+}
+
+static u16 GetStoredCurrentSong(void)
+{
+    return VarGet(MENU_CURRENT_SONG_VAR);
+}
+
+static void SetStoredCurrentSong(u16 songNum)
+{
+    VarSet(MENU_CURRENT_SONG_VAR, songNum);
+}
+
 struct ImageData
 {
     const u8 *tiles;
@@ -253,9 +272,7 @@ static void CB2_FullImage(void)
             gMenuStruct->bonusMenuItemFlags = Calloc(BONUS_PAGE_COUNT * sizeof(bool8));
             #endif
 
-            #ifdef KEEP_PLAYING_MUSIC
-            gMenuStruct->currentSong = 0xFFFF; // Set to an invalid song number to prevent the "Now Playing" text from showing up when the menu is first opened
-            #endif
+            InitStoredCurrentSong();
 
             InitMenuFlags();
             SetBGMVolume_SuppressHelpSystemReduction(160);
@@ -422,25 +439,6 @@ static void Task_ImageWaitForKeyPress(u8 taskId)
                 return;
         }
 
-        #ifndef KEEP_PLAYING_MUSIC
-        if (gMenuStruct->isPlaying)
-            return;
-
-        #ifdef BONUS_PAGE
-        if (gMenuStruct->isBonusPage)
-        {
-            if (!gMenuStruct->bonusMenuItemFlags[gMenuStruct->bonusSelectedItem])
-                return;
-        }
-        else
-        #endif
-        {
-            if (!gMenuStruct->menuItemFlags[gMenuStruct->selectedItem])
-                return;
-        }
-        #endif
-        gMenuStruct->isPlaying = TRUE;
-
         u16 songNum;
         #ifdef BONUS_PAGE
         if (gMenuStruct->isBonusPage)
@@ -449,61 +447,34 @@ static void Task_ImageWaitForKeyPress(u8 taskId)
         #endif
             songNum = MenuItemSongs[gMenuStruct->selectedItem];
 
-        #ifdef KEEP_PLAYING_MUSIC
-        if (gMenuStruct->currentSong == songNum)
+        if (GetStoredCurrentSong() == songNum)
             return;
-        #endif
 
         PlaySE(SE_SELECT);
         FadeOutAndPlayNewMapMusic(songNum, 8);
-        #ifdef KEEP_PLAYING_MUSIC
-        gMenuStruct->currentSong = songNum;
-        #endif
+        SetStoredCurrentSong(songNum);
         PrintMenuItemDescription();
     }
     else if (gMain.newKeys & B_BUTTON)
     {
-        #ifndef KEEP_PLAYING_MUSIC
-        if (gMenuStruct->isPlaying)
-        #endif
-        {
-            #ifndef KEEP_PLAYING_MUSIC
-            gMenuStruct->isPlaying = FALSE;
-            FadeOutAndPlayNewMapMusic(gMenuStruct->mapMusic, 8);
-            #endif
-            PrintMenuItemDescription();
-        }
-        #ifndef KEEP_PLAYING_MUSIC
-        else
-        #endif
-        {
-            BeginNormalPaletteFade(0xFFFFFFFF, 0, 0, 16, RGB_BLACK);
-            gTasks[taskId].func = Task_ImageFadeOut;
-        }
+        BeginNormalPaletteFade(0xFFFFFFFF, 0, 0, 16, RGB_BLACK);
+        gTasks[taskId].func = Task_ImageFadeOut;
     }
     else if (JOY_NEW_AND_REPEATED(DPAD_UP))
     {
-        #ifndef KEEP_PLAYING_MUSIC
-        if (gMenuStruct->isPlaying)
-            return;
-        #endif
         UpdateMenuSelection(FALSE);
     }
     else if (JOY_NEW_AND_REPEATED(DPAD_DOWN))
     {
-        #ifndef KEEP_PLAYING_MUSIC
-        if (gMenuStruct->isPlaying)
-            return;
-        #endif
         UpdateMenuSelection(TRUE);
     }
     #ifdef BONUS_PAGE
     else if (gMain.newKeys & (L_BUTTON | R_BUTTON))
     {
-        #ifndef KEEP_PLAYING_MUSIC
-        if (gMenuStruct->isPlaying)
+        // Return early if bonus page is not unlocked
+        if (FlagGet(FLAG_UNLOCK_BONUS_PAGE) == FALSE)
             return;
-        #endif
+
         bool8 nextIsBonusPage = (gMain.newKeys & R_BUTTON) ? TRUE : FALSE;
         if (gMenuStruct->isBonusPage != nextIsBonusPage)
         {
@@ -647,22 +618,18 @@ static void PrintMenuItemDescription(void)
         itemFlags = gMenuStruct->menuItemFlags;
     }
 
-    if (gMenuStruct->isPlaying)
+    bool8 showNowPlaying = FALSE;
+    u16 currentSong = GetStoredCurrentSong();
+
+    #ifdef BONUS_PAGE
+    if (gMenuStruct->isBonusPage)
+        showNowPlaying = (currentSong == MenuBonusItemSongs[selectedItem]);
+    else
+    #endif
+        showNowPlaying = (currentSong == MenuItemSongs[selectedItem]);
+
+    if (showNowPlaying)
     {
-        #ifdef KEEP_PLAYING_MUSIC
-        bool8 showNowPlaying = FALSE;
-
-        #ifdef BONUS_PAGE
-        if (gMenuStruct->isBonusPage)
-            showNowPlaying = (gMenuStruct->currentSong == MenuBonusItemSongs[selectedItem]);
-        else
-        #endif
-            showNowPlaying = (gMenuStruct->currentSong == MenuItemSongs[selectedItem]);
-
-        if (!showNowPlaying)
-            goto PRINT_DESCRIPTION;
-        #endif
-
         u8 nowPlayingText[32];
 
         StringCopy(nowPlayingText, gText_NowPlayingSong);
@@ -673,9 +640,6 @@ static void PrintMenuItemDescription(void)
         return;
     }
 
-    #ifdef KEEP_PLAYING_MUSIC
-    PRINT_DESCRIPTION:
-    #endif
     WindowPrint(WINDOW_DESCRIPTION, FONT_SIZE, 0, 0, COLOR_DESCRIPTION, 0, itemFlags[selectedItem] ? itemDescriptions[selectedItem] : gText_ItemDescriptionNotAvailable);
     CommitWindow(WINDOW_DESCRIPTION);
 }
@@ -684,6 +648,10 @@ static void PrintMenuItemDescription(void)
 #ifdef BONUS_PAGE
 static void PrintNextPreviousPageText(void)
 {
+    // Return early if bonus page is not unlocked
+    if (FlagGet(FLAG_UNLOCK_BONUS_PAGE) == FALSE)
+        return;
+
     CleanWindow(WINDOW_NEXT_PREVIOUS_PAGE_TEXT);
     if (gMenuStruct->isBonusPage)
         WindowPrint(WINDOW_NEXT_PREVIOUS_PAGE_TEXT, FONT_SIZE_SMALL, 0, 0, COLOR_PREVIOUS_NEXT, 0, gText_MenuBonusPreviousPageL);

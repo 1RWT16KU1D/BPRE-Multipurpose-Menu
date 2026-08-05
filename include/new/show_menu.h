@@ -50,7 +50,9 @@ static const struct TextColor sGrayText =
 
 /* ========== Configurable Options ========== */
 #define BONUS_PAGE // Comment this out to disable the bonus menu page
-//#define KEEP_PLAYING_MUSIC // Comment this out to stop the music when exiting the menu
+#define MENU_CURRENT_SONG_VAR 0x51FE // Last second var available
+#define MENU_CURRENT_SONG_INIT_VAR 0x51FF // Last var available
+#define FLAG_UNLOCK_BONUS_PAGE 0x1800 // The flag that unlocks the bonus page
 
 #define COLOR_MENU_TITLE COLOR(White) // Title text color
 #define COLOR_DESCRIPTION COLOR(White) // Description text color
@@ -66,6 +68,8 @@ static const struct TextColor sGrayText =
 #define FONT_SIZE_SMALL 0
 
 #define BONUS_PAGE_COUNT (u8)NELEMS(MenuBonusItems)
+#define MENU_CURRENT_SONG_INVALID 0xFFFF
+#define MENU_CURRENT_SONG_INIT_MAGIC 0xA55A
 
 
 /// enums and structs
@@ -77,9 +81,7 @@ struct MenuStruct
     bool8 *menuItemFlags;
     bool8 isPlaying;
     u16 mapMusic;
-    #ifdef KEEP_PLAYING_MUSIC
     u16 currentSong;
-    #endif
 
     #ifdef BONUS_PAGE
     bool8 isBonusPage;
