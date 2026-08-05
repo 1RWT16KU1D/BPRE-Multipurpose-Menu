@@ -5,6 +5,8 @@
 .include "../xse_defines.s"
 
 .global EventScript_PalletTown_FatGuy
+.global EventScript_PalletTown_LittleGirl
+
 EventScript_PalletTown_FatGuy:
     lock
     faceplayer
@@ -33,5 +35,12 @@ EventScript_PalletTown_FatGuy:
     msgbox gText_PalletTown_FatGuy_WillShowMenu MSG_NORMAL
     callasm ShowImage
     waitstate
+    release
+    end
+
+EventScript_PalletTown_LittleGirl:
+    lock
+    faceplayer
+    setflag 0x1800
     release
     end

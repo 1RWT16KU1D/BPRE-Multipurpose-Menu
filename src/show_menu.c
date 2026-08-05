@@ -36,23 +36,14 @@ bool8 *menuUnlockFlags;
 bool8 *bonusMenuUnlockFlags;
 #endif
 
-static void InitStoredCurrentSong(void)
-{
-    if (VarGet(MENU_CURRENT_SONG_INIT_VAR) != MENU_CURRENT_SONG_INIT_MAGIC)
-    {
-        VarSet(MENU_CURRENT_SONG_VAR, MENU_CURRENT_SONG_INVALID);
-        VarSet(MENU_CURRENT_SONG_INIT_VAR, MENU_CURRENT_SONG_INIT_MAGIC);
-    }
-}
-
 static u16 GetStoredCurrentSong(void)
 {
-    return VarGet(MENU_CURRENT_SONG_VAR);
+    return VarGet(VAR_CURRENT_SONG);
 }
 
 static void SetStoredCurrentSong(u16 songNum)
 {
-    VarSet(MENU_CURRENT_SONG_VAR, songNum);
+    VarSet(VAR_CURRENT_SONG, songNum);
 }
 
 struct ImageData
@@ -271,8 +262,6 @@ static void CB2_FullImage(void)
 
             gMenuStruct->bonusMenuItemFlags = Calloc(BONUS_PAGE_COUNT * sizeof(bool8));
             #endif
-
-            InitStoredCurrentSong();
 
             InitMenuFlags();
             SetBGMVolume_SuppressHelpSystemReduction(160);
