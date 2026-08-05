@@ -525,6 +525,13 @@ static void Task_ImageFadeOut(u8 taskId)
         ScriptContext2_Disable();
         gMain.state = MENU_STATE_INIT;
 
+        Free(gMenuStruct->menuItemFlags);
+        gMenuStruct->menuItemFlags = NULL;
+        #ifdef BONUS_PAGE
+        Free(gMenuStruct->bonusMenuItemFlags);
+        gMenuStruct->bonusMenuItemFlags = NULL;
+        #endif
+
         PlaySE(SE_PC_OFF);
         BGMVolumeMax_EnableHelpSystemReduction();
         SetMainCallback2(CB2_ReturnToFieldContinueScript);
