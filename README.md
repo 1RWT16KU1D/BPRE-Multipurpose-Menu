@@ -1,43 +1,160 @@
-# INFO
-This code just makes your party pokemon to be shown in tm case , only for FIRE RED BINARY.
+# What is this?
+A C-Injection project that inserts a custom Audio Player to your BPRE (FireRed v1.0) ROM. Can work on both Vanilla and [HUBOL](https://github.com/haven1433/HexManiacAdvance/wiki/Haven's-Unofficial-Build-Of-Leon's-Dynamic-Pokemon-Expansion---Complete-FireRed-Upgrade-Rombase) versions.
+
+# Table of Contents
+- [Features](#features)
+
+- [Build Instructions](#build-instructions)
+
+- [Configuration](#configuration)
+
+- [Adding/Removing Songs](#addingremoving-songs)
+
+- [Accessing In-Game](#accessing-in-game)
+
+- [Results](#results)
+
+- [FAQ](#faq)
+
+## Features
+- **Dynamic Compilation** - The [CFRU](https://github.com/Skeli789/Complete-Fire-Red-Upgrade) build system allows you to recompile as many times as you'd like without having to worry about repointing.
+
+- **Easy Configuration** - Adding new menu items will just take a few edits' worth of your time.
+
+- **Bonus Page Toggle** - You can choose to have a **Bonus Page**, or not. Just a matter of commenting/uncommenting a line from the config.
 
 ## Build Instructions
+If you're familiar with the CFRU, you can skip this step since they use the same build system and head to [Configuration](#configuration).
 
-Build the same as the CFRU:  `python scripts/make.py`
+### Prerequisites
+- **Your BPRE ROM (ofc)** - Name it `BPRE0.gba` and paste it on the root folder.
 
-Alternatively, you can download the code as a .zip file from the arrow above.  You can navigate to whichever branch for whichever feature you would like to check out as well.
+- [Python 3.7.6](https://www.python.org/downloads/release/python-376/) - Don't forget to check the **Add Python 3.7 to PATH** option during the installation.
 
-### Adding your ROM
+- [devkitPro](https://www.mediafire.com/file/ylybp19980gl5yx/devkitPro.zip/file)
+    - Extract the contents to **C Drive**.
+    - Search **Edit Environment Variables** in your Search Bar next to the Start Menu and click on the first option that pops up. Then click on **Environment Variables**, then **Path** on the top window and then **Edit**.
+    - Click on **New** and paste this: `C:\devkitPro\devkitARM\bin`.
+    - Save by clicking **OK**.
 
-Copy your ROM to this directory and rename it `BPRE0.gba`.
+### Commands
+- Run `python scripts/make.py` to build the required `test.gba` output.
 
-#### Configuration
+- Run `python  scripts/clean.py all` to remove previously built object files in case of a recompile. Then run the command above to rebuild.
 
-##### Compile Time Constants
+**NOTE: Run these commands from the ROOT folder!**
 
-Open [scripts/make.py](https://github.com/BluRosie/firegold-code/blob/template/scripts/make.py#L12) in a text editor to set some compile-time configuration.
+## Configuration
+This section lists the macros you can edit for your own build in `src/config.h`.
 
-The build system is smart enough to find enough free space on its own, and if you want it to be inserted at a particular address, you can specify it by updating the definition of `OFFSET_TO_PUT`:
+### Appearance
+| Macro | Description | Default |
+| ----- | ----------- | :-----: |
+| `COLOR_MENU_TITLE` | Title text color | `White` |
+| `COLOR_DESCRIPTION` | Description text color | `White` |
+| `COLOR_MENU_ITEM` | Unselected menu item text color | `Black` |
+| `COLOR_MENU_SELECTED_ITEM` | Selected menu item text and cursor color | `White` |
+| `COLOR_PREVIOUS_NEXT` | Previous/Next page text color | `White` |
 
-```python
-OFFSET_TO_PUT = 0x1C88650
-SEARCH_FREE_SPACE = True   # Set to True if you want the script to search for free space
-                           # Set to False if you don't want to search for free space as you for example update the engine
-```
+### General
+| Macro | Description | Default | Notes |
+| ----- | ----------- | :-----: | :---: |
+| *`BONUS_PAGE` | Adds the bonus page | `TRUE` | - |
+| `VAR_AUDIO_PLAYER_PAGE` | Stores player's last visited page | `0x51FC` | **Change for Vanilla ROMs!** |
+| `VAR_AUDIO_PLAYER_MAIN_INDEX` | Stores player's index in the main page | `0x51FD` | **Change for Vanilla ROMs!** |
+| *`VAR_AUDIO_PLAYER_BONUS_INDEX` | Stores player's index in the bonus page | `0x51FE` | **Change for Vanilla ROMs!** |
+| `VAR_CURRENT_SONG` | Stores the last played song | `0x51FF` | **Change for Vanilla ROMs!** |
+| *`FLAG_UNLOCK_BONUS_PAGE` | Flag that unlocks the bonus page when set | `0x1800` | **Change for Vanilla ROMs!** |
+| `BLINK_TIMER` | Higher the value, slower the interval between each blink | `45` | - |
+| `MENU_ITEM_COUNT` | Number of songs | `10` | - |
+| *`BONUS_PAGE_COUNT` | Number of songs in the bonus page | `9` | - |
 
-The build system will use `OFFSET_TO_PUT` to determine where in the ROM it should start looking for free space if `SEARCH_FREE_SPACE` is `True`.  Otherwise, the build system places the code to insert directly at `OFFSET_TO_PUT`.
+\* **Bonus Page Macros**
 
-#### Building the project itself
+## Adding/Removing Songs
+- **Step 1**: Change the number of songs you want in the config file. Macros used: `MENU_ITEM_COUNT` and `BONUS_PAGE_COUNT`. For this example, I will add two songs to the main menu. So I set `#define MENU_ITEM_COUNT 12`.
 
-Once you're ready, run:
+- **Step 2**: Navigate to `include/new/audio_player.h` and scroll down till you see `/* ========== String Declarations ========== */`. Declare your strings in the same manner:
+    ```
+    // Menu Items
+    extern const u8 gText_MenuItem_1[];
+    ...
+    ...
+    extern const u8 gText_MenuItem_10[];
 
-```shell
-$ python scripts/make.py
-```
+    extern const u8 gText_MenuItem_11[]; // New Song
+    extern const u8 gText_MenuItem_12[]; // New Song
 
-This won't actually modify `BPRE0.gba`, instead your output will be in `test.gba`. Naturally, test it in an emulator before continuing.
+    // Menu Item Descriptions
+    extern const u8 gText_MenuItemDesc_1[];
+    ...
+    ...
+    extern const u8 gText_MenuItemDesc_10[];
 
-### Credits
+    extern const u8 gText_MenuItemDesc_11[]; // New Song
+    extern const u8 gText_MenuItemDesc_12[]; // New Song
+    ```
 
-Blurose for this template he took out from CFRU and Greenphx for his awesome code
-Skeli made the [build system used in the CFRU](https://github.com/Skeli789/Complete-Fire-Red-Upgrade) which is used here.
+- **Step 3**: Add your required strings in `strings/audio_player.string`:
+    ```
+    // Main Menu Items
+    ...
+    ...
+    #org @gText_MenuItem_10
+    Song 10
+
+    #org @gText_MenuItem_11
+    Song 11
+
+    #org @gText_MenuItem_12
+    Song 12
+
+    // Menu Item Descriptions
+    ...
+    ...
+    #org @gText_MenuItemDesc_10
+    Song Description 10
+
+    #org @gText_MenuItemDesc_11
+    Song Description 11
+
+    #org @gText_MenuItemDesc_12
+    Song Description 12
+    ```
+    Follow the same procedures for the Bonus Menu.
+
+- **Step 4**: Finally, add your songs to the tables in `src/audio_player_data.c`. Scroll until you see: `/* ========== Menu Item Data ========== */`.
+
+## Accessing In-Game
+- Get the `offsets.ini` file in the root folder after building and note the offset of `ShowAudioPlayer`.
+
+- Example usage in script, say my offset is `08900A98`:
+  ```
+  lock
+  faceplayer
+  msgbox gText_AudioPlayer MSG_NORMAL
+
+  callasm 0x900A99 // Basically, (OFFSET + 1)
+  waitstate
+
+  release
+  end
+  ```
+
+- Useful resource: [Use Script Via Item](https://www.pokecommunity.com/threads/darthatrons-hacks.281573/) by Darthatron on PokeCommunity.
+
+## Results
+<img src="results/Interface.gif" width="600">
+
+[![Audio Player Showcase](https://www.youtube.com/watch?v=hZYj0DijsAg)](https://www.youtube.com/watch?v=hZYj0DijsAg)
+
+## FAQ
+
+# Credits
+- **1RWT16KU1D (Me)** - Project author, for the code and documented instructions.
+
+- **Invis** - For the beautiful menu backgrounds!
+
+- **Shiny Miner, Greenphx, Blurose** - For the code template that they extracted from the CFRU.
+
+- **Skeli** - For the build system. All hail Skeli.

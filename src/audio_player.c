@@ -88,14 +88,14 @@ static void SaveAudioPlayerPositionToVars(void)
     #endif
 }
 
-static void VBlankCB_Image(void)
+static void VBlankCB_AudioPlayer(void)
 {
     LoadOam();
     ProcessSpriteCopyRequests();
     TransferPlttBuffer();
 }
 
-static void MainCB2_Image(void)
+static void MainCB2_AudioPlayer(void)
 {
     RunTasks();
     AnimateSprites();
@@ -111,12 +111,12 @@ static void CommitWindows(void);
 
 static void UpdateBlinkTimer(void);
 static void LoadMenuBG(void);
-static void CB2_FullImage(void);
-static void Task_ImageFadeIn(u8 taskId);
+static void CB2_AudioPlayer(void);
+static void Task_AudioPlayerFadeIn(u8 taskId);
 static void InitMenuFlags(void);
-static void Task_ImageFadeIn(u8 taskId);
-static void Task_ImageWaitForKeyPress(u8 taskId);
-static void Task_ImageFadeOut(u8 taskId);
+static void Task_AudioPlayerFadeIn(u8 taskId);
+static void Task_AudioPlayerWaitForKeyPress(u8 taskId);
+static void Task_AudioPlayerFadeOut(u8 taskId);
 static void PrintMenuTitle(void);
 static void PrintMenuItems(void);
 static void PrintMenuItemDescription(void);
@@ -190,7 +190,7 @@ static void LoadMenuBG(void)
     #endif
 }
 
-static void CB2_FullImage(void)
+static void CB2_AudioPlayer(void)
 {
     switch (gMain.state)
     {
@@ -283,21 +283,21 @@ static void CB2_FullImage(void)
             break;
 
         case MENU_STATE_START:
-            SetVBlankCallback(VBlankCB_Image);
+            SetVBlankCallback(VBlankCB_AudioPlayer);
             PrintMenuGUI();
 
-            CreateTask(Task_ImageFadeIn, 0);
-            SetMainCallback2(MainCB2_Image);
+            CreateTask(Task_AudioPlayerFadeIn, 0);
+            SetMainCallback2(MainCB2_AudioPlayer);
 
             gMain.state = 0;
             break;
     }
 }
 
-static void Task_ImageFadeIn(u8 taskId)
+static void Task_AudioPlayerFadeIn(u8 taskId)
 {
     if (!gPaletteFade->active)
-        gTasks[taskId].func = Task_ImageWaitForKeyPress;
+        gTasks[taskId].func = Task_AudioPlayerWaitForKeyPress;
 }
 
 static void UpdateMenuSelection(bool8 movingDown)
@@ -364,7 +364,7 @@ static void UpdateMenuSelection(bool8 movingDown)
 }
 
 // This happens every frame
-static void Task_ImageWaitForKeyPress(u8 taskId)
+static void Task_AudioPlayerWaitForKeyPress(u8 taskId)
 {
     UpdateBlinkTimer();
 
@@ -403,7 +403,7 @@ static void Task_ImageWaitForKeyPress(u8 taskId)
     else if (gMain.newKeys & B_BUTTON)
     {
         BeginNormalPaletteFade(0xFFFFFFFF, 0, 0, 16, RGB_BLACK);
-        gTasks[taskId].func = Task_ImageFadeOut;
+        gTasks[taskId].func = Task_AudioPlayerFadeOut;
     }
     else if (JOY_NEW_AND_REPEATED(DPAD_UP))
     {
@@ -435,7 +435,7 @@ static void Task_ImageWaitForKeyPress(u8 taskId)
 }
 
 // Free the tilemap buffer and return to the previous CB
-static void Task_ImageFadeOut(u8 taskId)
+static void Task_AudioPlayerFadeOut(u8 taskId)
 {
     if (!gPaletteFade->active)
     {
@@ -621,9 +621,9 @@ static void PrintMenuGUI(void)
     #endif
 }
 
-void ShowImage(void)
+void ShowAudioPlayer(void)
 {
     ScriptContext2_Enable();
     gMain.state = MENU_STATE_INIT;
-    SetMainCallback2(CB2_FullImage);
+    SetMainCallback2(CB2_AudioPlayer);
 }

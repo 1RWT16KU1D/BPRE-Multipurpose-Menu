@@ -239,8 +239,8 @@
 .equ MAP_SCRIPT_ON_RETURN_TO_FIELD, 7
 .equ LEVEL_SCRIPT_TERMIN, 0
 
-@@ ShowImage function
-.equ ShowImageVar, 0x8000
+@@ ShowAudioPlayer function
+.equ ShowAudioPlayerVar, 0x8000
 
 .equ VAR_IMAGE_1, 0x0
 .equ VAR_IMAGE_2, 0x1

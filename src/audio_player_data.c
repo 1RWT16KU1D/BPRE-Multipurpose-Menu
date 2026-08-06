@@ -180,9 +180,9 @@ const u8 *const MenuItemDescriptions[MENU_ITEM_COUNT] =
 
 const u16 MenuItemUnlockFlags[MENU_ITEM_COUNT] =
 {
-    0x1601,
-    0x1602,
-    0x1603,
+    0x1601, // Flag needed to unlock song 1
+    0x1602, // Flag needed to unlock song 2
+    0x1603, // etc.
     0x1604,
     0x1605,
     0x1606,
@@ -194,9 +194,9 @@ const u16 MenuItemUnlockFlags[MENU_ITEM_COUNT] =
 
 const u16 MenuItemSongs[MENU_ITEM_COUNT] =
 {
-    300,
-    314,
-    280,
+    300, // Song ID for song 1
+    314, // Song ID for song 2
+    280, // etc.
     0,
     0,
     0,

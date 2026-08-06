@@ -1,4 +1,4 @@
-#include "./include/new/audio_player.h"
+#include "./src/config.h"
 
 #org @gText_ItemDescriptionNotAvailable
 Description not available[.]
