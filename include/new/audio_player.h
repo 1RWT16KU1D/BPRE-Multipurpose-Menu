@@ -1,58 +1,24 @@
-#ifndef GUARD_SHOW_MENU_H
-#define GUARD_SHOW_MENU_H
+#ifndef GUARD_AUDIO_PLAYER_H
+#define GUARD_AUDIO_PLAYER_H
 
+#include "../bg.h"
 #include "../global.h"
 #include "../window.h"
 
 // Text colors
-static const struct TextColor sWhiteText =
-{
-	.bgColor = TEXT_COLOR_TRANSPARENT,
-	.fgColor = TEXT_COLOR_WHITE,
-	.shadowColor = TEXT_COLOR_DARK_GREY
-};
-
-static const struct TextColor sBlackText =
-{
-	.bgColor = TEXT_COLOR_TRANSPARENT,
-	.fgColor = TEXT_COLOR_DARK_GREY,
-	.shadowColor = TEXT_COLOR_LIGHT_GREY
-};
-
-static const struct TextColor sRedText =
-{
-	.bgColor = TEXT_COLOR_TRANSPARENT,
-	.fgColor = TEXT_COLOR_RED,
-	.shadowColor = TEXT_COLOR_LIGHT_GREY
-};
-
-static const struct TextColor sBlueText =
-{
-    .bgColor = TEXT_COLOR_TRANSPARENT,
-    .fgColor = TEXT_COLOR_BLUE,
-    .shadowColor = TEXT_COLOR_LIGHT_BLUE
-};
-
-static const struct TextColor sGreenText =
-{
-    .bgColor = TEXT_COLOR_TRANSPARENT,
-    .fgColor = TEXT_COLOR_GREEN,
-    .shadowColor = TEXT_COLOR_LIGHT_GREEN
-};
-
-static const struct TextColor sGrayText =
-{
-    .bgColor = TEXT_COLOR_TRANSPARENT,
-    .fgColor = TEXT_COLOR_LIGHT_GREY,
-    .shadowColor = TEXT_COLOR_DARK_GREY
-};
+extern const struct TextColor sWhiteText;
+extern const struct TextColor sBlackText;
+extern const struct TextColor sRedText;
+extern const struct TextColor sBlueText;
+extern const struct TextColor sGreenText;
+extern const struct TextColor sGrayText;
 #define COLOR(color) &s##color##Text
 
 /* ========== Configurable Options ========== */
 #define BONUS_PAGE // Comment this out to disable the bonus menu page
-#define VAR_CURRENT_SONG 0x51FF // Last var available
+#define VAR_CURRENT_SONG 0x51FF // Var that stores the last played song
 #define FLAG_UNLOCK_BONUS_PAGE 0x1800 // The flag that unlocks the bonus page
-#define BLINK_TIMER 45 // Blink every 45 frames. Around 2/3s
+#define BLINK_TIMER 45 // Blink every 45 frames. Around 3/2s on 60 fps
 
 #define COLOR_MENU_TITLE COLOR(White) // Title text color
 #define COLOR_DESCRIPTION COLOR(White) // Description text color
@@ -69,8 +35,16 @@ static const struct TextColor sGrayText =
 #define FONT_SIZE_SMALL 0
 #define VALUE_SONG_UNSET 0xFFFF
 
+struct ImageData
+{
+    const u8 *tiles;
+    const u8 *pal;
+    const u16 *tilemap;
+};
 
-
+extern const struct ImageData gAudioPlayerBGData;
+extern const struct BgTemplate sAudioPlayerBGTemplates[];
+extern const struct WindowTemplate sAudioPlayerWindowTemplates[];
 
 /// enums and structs
 struct MenuStruct 
@@ -115,6 +89,7 @@ enum MenuBGs
 	BG_NIL,
 	BG_NIL_2,
 	BG_BACKGROUND,
+    BG_COUNT,
 };
 
 enum MenuWindows
@@ -170,54 +145,10 @@ extern const u8 gText_MenuItemDesc_8[];
 extern const u8 gText_MenuItemDesc_9[];
 extern const u8 gText_MenuItemDesc_10[];
 
-const u8 *const MenuItems[MENU_ITEM_COUNT] =
-{
-    gText_MenuItem_1,
-    gText_MenuItem_2,
-    gText_MenuItem_3,
-    gText_MenuItem_4,
-    gText_MenuItem_5,
-    gText_MenuItem_6,
-    gText_MenuItem_7,
-    gText_MenuItem_8,
-    gText_MenuItem_9,
-    gText_MenuItem_10,
-};
-
-const u8 *const MenuItemDescriptions[MENU_ITEM_COUNT] =
-{
-    gText_MenuItemDesc_1,
-    gText_MenuItemDesc_2,
-    gText_MenuItemDesc_3,
-    gText_MenuItemDesc_4,
-    gText_MenuItemDesc_5,
-    gText_MenuItemDesc_6,
-    gText_MenuItemDesc_7,
-    gText_MenuItemDesc_8,
-    gText_MenuItemDesc_9,
-    gText_MenuItemDesc_10,
-};
-
-const u16 MenuItemUnlockFlags[MENU_ITEM_COUNT] =
-{
-    0x1601,
-    0x1602,
-    0x1603,
-    0x1604,
-    0x1605,
-    0x1606,
-    0x1607,
-    0x1608,
-    0x1609,
-    0x160A
-};
-
-const u16 MenuItemSongs[MENU_ITEM_COUNT] =
-{
-    300,
-    314,
-    280
-};
+extern const u8 *const MenuItems[MENU_ITEM_COUNT];
+extern const u8 *const MenuItemDescriptions[MENU_ITEM_COUNT];
+extern const u16 MenuItemUnlockFlags[MENU_ITEM_COUNT];
+extern const u16 MenuItemSongs[MENU_ITEM_COUNT];
 
 #ifdef BONUS_PAGE
 // Bonus Menu Title
@@ -249,51 +180,13 @@ extern const u8 gText_MenuBonusItemDescription_7[];
 extern const u8 gText_MenuBonusItemDescription_8[];
 extern const u8 gText_MenuBonusItemDescription_9[];
 
-const u8 *const MenuBonusItems[BONUS_PAGE_COUNT] =
-{
-    gText_MenuBonusItem_1,
-    gText_MenuBonusItem_2,
-    gText_MenuBonusItem_3,
-    gText_MenuBonusItem_4,
-    gText_MenuBonusItem_5,
-    gText_MenuBonusItem_6,
-    gText_MenuBonusItem_7,
-    gText_MenuBonusItem_8,
-    gText_MenuBonusItem_9,
-};
+extern const u8 *const MenuBonusItems[BONUS_PAGE_COUNT];
+extern const u8 *const MenuBonusItemDescriptions[BONUS_PAGE_COUNT];
+extern const u16 MenuBonusItemUnlockFlags[BONUS_PAGE_COUNT];
+extern const u16 MenuBonusItemSongs[BONUS_PAGE_COUNT];
 
-const u8 *const MenuBonusItemDescriptions[BONUS_PAGE_COUNT] =
-{
-    gText_MenuBonusItemDescription_1,
-    gText_MenuBonusItemDescription_2,
-    gText_MenuBonusItemDescription_3,
-    gText_MenuBonusItemDescription_4,
-    gText_MenuBonusItemDescription_5,
-    gText_MenuBonusItemDescription_6,
-    gText_MenuBonusItemDescription_7,
-    gText_MenuBonusItemDescription_8,
-    gText_MenuBonusItemDescription_9,
-};
-
-const u16 MenuBonusItemUnlockFlags[BONUS_PAGE_COUNT] =
-{
-    0x1611,
-    0x1612,
-    0x1613,
-    0x1614,
-    0x1615,
-    0x1616,
-    0x1617,
-    0x1618,
-    0x1619
-};
-
-const u16 MenuBonusItemSongs[BONUS_PAGE_COUNT] =
-{
-    274,
-    282,
-    305
-};
+void ShowAudioPlayer(void);
+void ShowImage(void);
 #endif
 
 #endif // GUARD_SHOW_MENU_H

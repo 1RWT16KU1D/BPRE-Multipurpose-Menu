@@ -1,4 +1,4 @@
-#include "./include/new/show_menu.h"
+#include "./include/new/audio_player.h"
 
 #org @gText_ItemDescriptionNotAvailable
 Description not available[.]
@@ -72,7 +72,6 @@ Song Description 9
 Song Description 10
 
 #ifdef BONUS_PAGE
-
 #org @gText_MenuBonusTitle
 Bonus Tracks
 

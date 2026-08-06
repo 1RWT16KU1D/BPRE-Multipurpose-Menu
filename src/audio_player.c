@@ -51,113 +51,6 @@ static void SetStoredCurrentSong(u16 songNum)
     VarSet(VAR_CURRENT_SONG, songNum + 1);
 }
 
-struct ImageData
-{
-    const u8 *tiles;
-    const u8 *pal;
-    const u16 *tilemap;
-};
-
-const struct ImageData MenuBGData =
-{
-    .tiles = Menu_BGTiles,
-    .pal = Menu_BGPal,
-    .tilemap = Menu_BGMap
-};
-
-static const struct BgTemplate sMenuBGTemplates[] =
-{
-	[BG_TEXT] =
-	{
-		.bg = BG_TEXT,
-		.charBaseIndex = 0,
-		.mapBaseIndex = 28,
-		.screenSize = 0,
-		.paletteMode = 0,
-		.priority = 0,
-		.baseTile = 0,
-	},
-	[BG_NIL] =
-	{
-		.bg = BG_NIL,
-		.charBaseIndex = 1,
-		.mapBaseIndex = 29,
-		.screenSize = 0,
-		.paletteMode = 0,
-		.priority = 1,
-		.baseTile = 0,
-	},
-	[BG_NIL_2] =
-	{
-		.bg = BG_NIL_2,
-		.charBaseIndex = 2,
-		.mapBaseIndex = 30,
-		.screenSize = 0,
-		.paletteMode = 0,
-		.priority = 2,
-		.baseTile = 0,
-	},
-	[BG_BACKGROUND] =
-	{
-		.bg = BG_BACKGROUND,
-        .charBaseIndex = 3,
-        .mapBaseIndex = 31,
-        .screenSize = 0,
-		.paletteMode = 0,
-		.priority = 3,
-		.baseTile = 0,
-	},
-};
-
-static const struct WindowTemplate unusedArg sMenuWindowTemplates[WINDOW_COUNT + 1] =
-{
-	[WINDOW_TITLE] =
-	{
-		.bg = BG_TEXT,
-		.tilemapLeft = 21,
-		.tilemapTop = 1,
-		.width = 9,
-		.height = 2,
-		.paletteNum = 14,
-		.baseBlock = 1,
-	},
-	[WINDOW_ITEMS] =
-	{
-		.bg = BG_TEXT,
-		.tilemapLeft = 0,
-		.tilemapTop = 1,
-		.width = 19,
-		.height = 14,
-		.paletteNum = 14,
-		.baseBlock = 19,
-	},
-    [WINDOW_DESCRIPTION] =
-    {
-        .bg = BG_TEXT,
-        .tilemapLeft = 1,
-        .tilemapTop = 16,
-        .width = 30,
-        .height = 4,
-        .paletteNum = 14,
-        .baseBlock = 285,
-    },
-
-    #ifdef BONUS_PAGE
-    [WINDOW_NEXT_PREVIOUS_PAGE_TEXT] =
-    {
-        .bg = BG_TEXT,
-        .tilemapLeft = 23,
-        .tilemapTop = 6,
-        .width = 7,
-        .height = 4,
-        .paletteNum = 14,
-        .baseBlock = 405,
-    },
-    #endif
-	//Base block 500 is used for frame tiles
-	DUMMY_WIN_TEMPLATE
-};
-
 static void VBlankCB_Image(void)
 {
     LoadOam();
@@ -242,7 +135,7 @@ static void UpdateBlinkTimer(void)
 
 static void LoadMenuBG(void)
 {
-    const struct ImageData *img = &MenuBGData;
+    const struct ImageData *img = &gAudioPlayerBGData;
     CpuFastFill16(0, (void*)BG_CHAR_ADDR(0), BG_CHAR_SIZE * 4);
     CpuFastFill16(0, tilemapbuffer, BG_MAP_BYTES);
 
@@ -308,7 +201,7 @@ static void CB2_FullImage(void)
             tilemapbuffer = Calloc(BG_MAP_BYTES);
 
             ResetBgsAndClearDma3BusyFlags(0);
-            InitBgsFromTemplates(0, sMenuBGTemplates, NELEMS(sMenuBGTemplates));
+            InitBgsFromTemplates(0, sAudioPlayerBGTemplates, BG_COUNT);
             SetBgTilemapBuffer(BG_BACKGROUND, tilemapbuffer);
 
             ChangeBgX(BG_BACKGROUND, 0, 0);
@@ -337,7 +230,7 @@ static void CB2_FullImage(void)
             break;
 
         case MENU_STATE_INIT_WINDOWS:
-            InitWindows(sMenuWindowTemplates);
+            InitWindows(sAudioPlayerWindowTemplates);
             DeactivateAllTextPrinters();
 
             gMain.state++;
