@@ -1,7 +1,7 @@
 #include "../include/palette.h"
 #include "../include/sound.h"
 
-#include "../include/new/show_menu.h" 
+#include "../include/new/audio_player.h" 
 #include "../include/bg.h"
 #include "../include/decompress.h"
 #include "../include/event_data.h"
@@ -179,6 +179,10 @@ static void CommitWindow(u8 windowId);
 static void CleanWindows(void);
 static void CommitWindows(void);
 
+static void UpdateBlinkTimer(void);
+static void LoadMenuBG(void);
+static void CB2_FullImage(void);
+static void Task_ImageFadeIn(u8 taskId);
 static void InitMenuFlags(void);
 static void Task_ImageFadeIn(u8 taskId);
 static void Task_ImageWaitForKeyPress(u8 taskId);
@@ -226,6 +230,16 @@ static void InitMenuFlags(void)
 
 }
 
+static void UpdateBlinkTimer(void)
+{
+    if (++gMenuStruct->blinkTimer >= BLINK_TIMER)
+    {
+        gMenuStruct->blinkTimer = 0;
+        gMenuStruct->shouldBlink ^= TRUE;
+        PrintMenuItemDescription();
+    }
+}
+
 static void LoadMenuBG(void)
 {
     const struct ImageData *img = &MenuBGData;
@@ -256,16 +270,16 @@ static void CB2_FullImage(void)
             gMenuStruct->firstVisibleItem = 0;
             gMenuStruct->selectedItem = 0;
 
-            gMenuStruct->menuItemFlags = Calloc(MENU_ITEM_COUNT * sizeof(bool8));
             gMenuStruct->mapMusic = GetCurrentMapMusic();
+
+            gMenuStruct->blinkTimer = 0;
+            gMenuStruct->shouldBlink = FALSE;
 
             #ifdef BONUS_PAGE
             gMenuStruct->isBonusPage = FALSE;
             gMenuStruct->bonusCursorPos = 0;
             gMenuStruct->bonusFirstVisibleItem = 0;
             gMenuStruct->bonusSelectedItem = 0;
-
-            gMenuStruct->bonusMenuItemFlags = Calloc(BONUS_PAGE_COUNT * sizeof(bool8));
             #endif
 
             InitMenuFlags();
@@ -415,8 +429,11 @@ static void UpdateMenuSelection(bool8 movingDown)
     PrintMenuItemDescription();
 }
 
+// This happens every frame
 static void Task_ImageWaitForKeyPress(u8 taskId)
 {
+    UpdateBlinkTimer();
+
     if (gMain.newKeys & A_BUTTON)
     {
         // Return early if not unlocked
@@ -492,13 +509,6 @@ static void Task_ImageFadeOut(u8 taskId)
 
         ScriptContext2_Disable();
         gMain.state = MENU_STATE_INIT;
-
-        Free(gMenuStruct->menuItemFlags);
-        gMenuStruct->menuItemFlags = NULL;
-        #ifdef BONUS_PAGE
-        Free(gMenuStruct->bonusMenuItemFlags);
-        gMenuStruct->bonusMenuItemFlags = NULL;
-        #endif
 
         PlaySE(SE_PC_OFF);
         BGMVolumeMax_EnableHelpSystemReduction();
@@ -624,12 +634,17 @@ static void PrintMenuItemDescription(void)
 
     if (showNowPlaying)
     {
-        u8 nowPlayingText[32];
+        if (gMenuStruct->shouldBlink)
+            CleanWindow(WINDOW_DESCRIPTION);
+        else
+        {
+            u8 nowPlayingText[32];
 
-        StringCopy(nowPlayingText, gText_NowPlayingSong);
-        StringAppend(nowPlayingText, itemNames[selectedItem]);
+            StringCopy(nowPlayingText, gText_NowPlayingSong);
+            StringAppend(nowPlayingText, itemNames[selectedItem]);
 
-        WindowPrint(WINDOW_DESCRIPTION, FONT_SIZE, 0, 0, COLOR_DESCRIPTION, 0, nowPlayingText);
+            WindowPrint(WINDOW_DESCRIPTION, FONT_SIZE, 0, 0, COLOR_DESCRIPTION, 0, nowPlayingText);
+        }
         CommitWindow(WINDOW_DESCRIPTION);
         return;
     }

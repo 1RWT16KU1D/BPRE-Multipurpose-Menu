@@ -52,6 +52,7 @@ static const struct TextColor sGrayText =
 #define BONUS_PAGE // Comment this out to disable the bonus menu page
 #define VAR_CURRENT_SONG 0x51FF // Last var available
 #define FLAG_UNLOCK_BONUS_PAGE 0x1800 // The flag that unlocks the bonus page
+#define BLINK_TIMER 45 // Blink every 45 frames. Around 2/3s
 
 #define COLOR_MENU_TITLE COLOR(White) // Title text color
 #define COLOR_DESCRIPTION COLOR(White) // Description text color
@@ -59,15 +60,16 @@ static const struct TextColor sGrayText =
 #define COLOR_MENU_SELECTED_ITEM COLOR(White) // Selected menu item text color (including arrow)
 #define COLOR_PREVIOUS_NEXT COLOR(White) // Previous/Next page text color
 
+#define MENU_ITEM_COUNT 10 // Number of songs in the menu
+#define BONUS_PAGE_COUNT 9 // Number of songs in the bonus page
 
 // Don't touch!
 #define VISIBLE_ITEMS 7
-#define MENU_ITEM_COUNT (u8)NELEMS(MenuItems)
 #define FONT_SIZE 1
 #define FONT_SIZE_SMALL 0
 #define VALUE_SONG_UNSET 0xFFFF
 
-#define BONUS_PAGE_COUNT (u8)NELEMS(MenuBonusItems)
+
 
 
 /// enums and structs
@@ -76,17 +78,22 @@ struct MenuStruct
     u8 cursorPos;
     u8 firstVisibleItem;
     u8 selectedItem;
-    bool8 *menuItemFlags;
-    bool8 isPlaying;
+    bool8 menuItemFlags[MENU_ITEM_COUNT];
+
+    // Music vars
     u16 mapMusic;
     u16 currentSong;
+
+    // Blinking description
+    u8 blinkTimer;
+    bool8 shouldBlink;
 
     #ifdef BONUS_PAGE
     bool8 isBonusPage;
     u8 bonusCursorPos;
     u8 bonusFirstVisibleItem;
     u8 bonusSelectedItem;
-    bool8 *bonusMenuItemFlags;
+    bool8 bonusMenuItemFlags[BONUS_PAGE_COUNT];
     #endif
 };
 
@@ -163,7 +170,7 @@ extern const u8 gText_MenuItemDesc_8[];
 extern const u8 gText_MenuItemDesc_9[];
 extern const u8 gText_MenuItemDesc_10[];
 
-const u8 *const MenuItems[] =
+const u8 *const MenuItems[MENU_ITEM_COUNT] =
 {
     gText_MenuItem_1,
     gText_MenuItem_2,
@@ -177,7 +184,7 @@ const u8 *const MenuItems[] =
     gText_MenuItem_10,
 };
 
-const u8 *const MenuItemDescriptions[] =
+const u8 *const MenuItemDescriptions[MENU_ITEM_COUNT] =
 {
     gText_MenuItemDesc_1,
     gText_MenuItemDesc_2,
@@ -191,7 +198,7 @@ const u8 *const MenuItemDescriptions[] =
     gText_MenuItemDesc_10,
 };
 
-const u16 MenuItemUnlockFlags[] =
+const u16 MenuItemUnlockFlags[MENU_ITEM_COUNT] =
 {
     0x1601,
     0x1602,
@@ -205,18 +212,11 @@ const u16 MenuItemUnlockFlags[] =
     0x160A
 };
 
-const u16 MenuItemSongs[] =
+const u16 MenuItemSongs[MENU_ITEM_COUNT] =
 {
     300,
     314,
-    280,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
+    280
 };
 
 #ifdef BONUS_PAGE
@@ -249,7 +249,7 @@ extern const u8 gText_MenuBonusItemDescription_7[];
 extern const u8 gText_MenuBonusItemDescription_8[];
 extern const u8 gText_MenuBonusItemDescription_9[];
 
-const u8 *const MenuBonusItems[] =
+const u8 *const MenuBonusItems[BONUS_PAGE_COUNT] =
 {
     gText_MenuBonusItem_1,
     gText_MenuBonusItem_2,
@@ -262,7 +262,7 @@ const u8 *const MenuBonusItems[] =
     gText_MenuBonusItem_9,
 };
 
-const u8 *const MenuBonusItemDescriptions[] =
+const u8 *const MenuBonusItemDescriptions[BONUS_PAGE_COUNT] =
 {
     gText_MenuBonusItemDescription_1,
     gText_MenuBonusItemDescription_2,
@@ -275,7 +275,7 @@ const u8 *const MenuBonusItemDescriptions[] =
     gText_MenuBonusItemDescription_9,
 };
 
-const u16 MenuBonusItemUnlockFlags[] =
+const u16 MenuBonusItemUnlockFlags[BONUS_PAGE_COUNT] =
 {
     0x1611,
     0x1612,
@@ -288,17 +288,11 @@ const u16 MenuBonusItemUnlockFlags[] =
     0x1619
 };
 
-const u16 MenuBonusItemSongs[] =
+const u16 MenuBonusItemSongs[BONUS_PAGE_COUNT] =
 {
     274,
     282,
-    305,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
+    305
 };
 #endif
 
