@@ -65,6 +65,7 @@ static const struct TextColor sGrayText =
 #define MENU_ITEM_COUNT (u8)NELEMS(MenuItems)
 #define FONT_SIZE 1
 #define FONT_SIZE_SMALL 0
+#define VALUE_SONG_UNSET 0xFFFF
 
 #define BONUS_PAGE_COUNT (u8)NELEMS(MenuBonusItems)
 

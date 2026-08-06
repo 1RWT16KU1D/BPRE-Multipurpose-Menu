@@ -41,6 +41,7 @@ EventScript_PalletTown_FatGuy:
 EventScript_PalletTown_LittleGirl:
     lock
     faceplayer
+    msgbox gText_PalletTown_LittleGirl_BonusPageUnlocked MSG_NORMAL
     setflag 0x1800
     release
     end

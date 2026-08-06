@@ -38,12 +38,17 @@ bool8 *bonusMenuUnlockFlags;
 
 static u16 GetStoredCurrentSong(void)
 {
-    return VarGet(VAR_CURRENT_SONG);
+    u16 storedValue = VarGet(VAR_CURRENT_SONG);
+
+    if (storedValue == 0)
+        return VALUE_SONG_UNSET;
+
+    return storedValue - 1;
 }
 
 static void SetStoredCurrentSong(u16 songNum)
 {
-    VarSet(VAR_CURRENT_SONG, songNum);
+    VarSet(VAR_CURRENT_SONG, songNum + 1);
 }
 
 struct ImageData
@@ -142,7 +147,7 @@ static const struct WindowTemplate unusedArg sMenuWindowTemplates[WINDOW_COUNT +
     {
         .bg = BG_TEXT,
         .tilemapLeft = 23,
-        .tilemapTop = 8,
+        .tilemapTop = 6,
         .width = 7,
         .height = 4,
         .paletteNum = 14,
