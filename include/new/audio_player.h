@@ -17,6 +17,9 @@ extern const struct TextColor sGrayText;
 /* ========== Configurable Options ========== */
 #define BONUS_PAGE // Comment this out to disable the bonus menu page
 #define VAR_CURRENT_SONG 0x51FF // Var that stores the last played song
+#define VAR_AUDIO_PLAYER_PAGE 0x51FC // 0 = main page, 1 = bonus page
+#define VAR_AUDIO_PLAYER_MAIN_INDEX 0x51FD // Last selected index on main page
+#define VAR_AUDIO_PLAYER_BONUS_INDEX 0x51FE // Last selected index on bonus page
 #define FLAG_UNLOCK_BONUS_PAGE 0x1800 // The flag that unlocks the bonus page
 #define BLINK_TIMER 45 // Blink every 45 frames. Around 3/2s on 60 fps
 

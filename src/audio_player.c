@@ -51,6 +51,43 @@ static void SetStoredCurrentSong(u16 songNum)
     VarSet(VAR_CURRENT_SONG, songNum + 1);
 }
 
+static void ApplySelectionIndex(u8 selectedIndex, u8 *cursorPos, u8 *firstVisibleItem, u8 *selectedItem)
+{
+    u8 cursor = selectedIndex;
+    cursor = min(cursor, VISIBLE_ITEMS - 1);
+
+    *cursorPos = cursor;
+    *firstVisibleItem = selectedIndex - cursor;
+    *selectedItem = selectedIndex;
+}
+
+static void LoadAudioPlayerPositionFromVars(void)
+{
+    u8 mainSelected = VarGet(VAR_AUDIO_PLAYER_MAIN_INDEX);
+    ApplySelectionIndex(mainSelected, &gMenuStruct->cursorPos, &gMenuStruct->firstVisibleItem, &gMenuStruct->selectedItem);
+
+    #ifdef BONUS_PAGE
+    u8 bonusSelected = VarGet(VAR_AUDIO_PLAYER_BONUS_INDEX);
+    ApplySelectionIndex(bonusSelected, &gMenuStruct->bonusCursorPos, &gMenuStruct->bonusFirstVisibleItem, &gMenuStruct->bonusSelectedItem);
+
+    gMenuStruct->isBonusPage = FALSE;
+    if (FlagGet(FLAG_UNLOCK_BONUS_PAGE) && VarGet(VAR_AUDIO_PLAYER_PAGE) != 0)
+        gMenuStruct->isBonusPage = TRUE;
+    #endif
+}
+
+static void SaveAudioPlayerPositionToVars(void)
+{
+    VarSet(VAR_AUDIO_PLAYER_MAIN_INDEX, gMenuStruct->selectedItem);
+
+    #ifdef BONUS_PAGE
+    VarSet(VAR_AUDIO_PLAYER_BONUS_INDEX, gMenuStruct->bonusSelectedItem);
+    VarSet(VAR_AUDIO_PLAYER_PAGE, gMenuStruct->isBonusPage ? TRUE : FALSE);
+    #else
+    VarSet(VAR_AUDIO_PLAYER_PAGE, 0);
+    #endif
+}
+
 static void VBlankCB_Image(void)
 {
     LoadOam();
@@ -174,6 +211,9 @@ static void CB2_FullImage(void)
             gMenuStruct->bonusFirstVisibleItem = 0;
             gMenuStruct->bonusSelectedItem = 0;
             #endif
+
+            LoadAudioPlayerPositionFromVars();
+            SaveAudioPlayerPositionToVars();
 
             InitMenuFlags();
             SetBGMVolume_SuppressHelpSystemReduction(160);
@@ -318,6 +358,7 @@ static void UpdateMenuSelection(bool8 movingDown)
     }
 
     *selectedItem = *firstVisibleItem + *cursorPos;
+    SaveAudioPlayerPositionToVars();
     PrintMenuItems();
     PrintMenuItemDescription();
 }
@@ -383,6 +424,7 @@ static void Task_ImageWaitForKeyPress(u8 taskId)
         if (gMenuStruct->isBonusPage != nextIsBonusPage)
         {
             gMenuStruct->isBonusPage = nextIsBonusPage;
+            SaveAudioPlayerPositionToVars();
             PlaySE(SE_WIN_OPEN);
             LoadMenuBG();
             CopyBgTilemapBufferToVram(BG_BACKGROUND);
