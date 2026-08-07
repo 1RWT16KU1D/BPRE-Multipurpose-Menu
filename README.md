@@ -14,6 +14,8 @@ A C-Injection project that inserts a custom Audio Player to your BPRE (FireRed v
 
 - [Results](#results)
 
+- [Credits](#credits)
+
 ## Features
 - **Dynamic Compilation** - The [CFRU](https://github.com/Skeli789/Complete-Fire-Red-Upgrade) build system allows you to recompile as many times as you'd like without having to worry about repointing. The variable `OFFSET_TO_PUT` in `scripts/make.py` and `scripts/insert.py`, lets you specify where routine will be inserted in the ROM. You may also disable automatic free‑space searching with the `SEARCH_FREE_SPACE` flag.
 
@@ -144,7 +146,7 @@ This section lists the macros you can edit for your own build in `src/config.h`.
 ## Results
 <img src="results/Interface.gif" width="600">
 
-[![Audio Player Showcase](https://www.youtube.com/watch?v=hZYj0DijsAg)](https://www.youtube.com/watch?v=hZYj0DijsAg)
+[![Audio Player Showcase - YouTube](https://www.youtube.com/watch?v=hZYj0DijsAg)](https://www.youtube.com/watch?v=hZYj0DijsAg)
 
 # Credits
 - **1RWT16KU1D (Me)** - Project author, for the code and documented instructions.
